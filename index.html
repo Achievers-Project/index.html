@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RBI Quiz</title>
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f7;
+  color: #111;
+  transition: background 0.3s, color 0.3s;
+}
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.15);
+  transition: background 0.3s, color 0.3s;
+}
+h1 { text-align:center; }
+.question { font-size:20px; margin-bottom:16px; font-weight:bold; }
+.option-btn {
+  display:block; width:100%; padding:12px; margin:8px 0;
+  font-size:16px; border:1px solid #888; border-radius:8px;
+  cursor:pointer; background:#eae8ff; transition:background 0.2s;
+}
+.option-btn:hover { background:#d4d0ff; }
+.option-correct { background:#35d46a !important; color:white; }
+.option-wrong { background:#ff5c5c !important; color:white; }
+#timer { font-size:18px; font-weight:bold; margin-bottom:4px; }
+#timerBarContainer { width:100%; height:10px; background:#ccc; border-radius:5px; margin-bottom:12px; }
+#timerBar { width:100%; height:100%; background:#6a5acd; border-radius:5px; transition:width 1s linear; }
+.restart-btn {
+  padding:12px 20px; background:#6a5acd; border:none; border-radius:8px;
+  cursor:pointer; color:white; font-size:18px; margin-top:12px;
+}
+.restart-btn:hover { background:#5848c2; }
+.dark { background:#0f0f0f; color:#eee; }
+.dark .container { background:#1c1c1c; color:#eee; }
+.dark .option-btn { background:#2b2b2b; color:#eee; border:1px solid #777; }
+.dark .option-btn:hover { background:#3a3a3a; }
+.dark .restart-btn { background:#7f6aff; }
+.dark .restart-btn:hover { background:#6b56e5; }
+footer { margin-top:20px; text-align:center; font-size:14px; color:#666; }
+.dark footer { color:#ccc; }
+</style>
+</head>
+<body>
+<div style="max-width:900px;margin:10px auto;display:flex;justify-content:flex-end;align-items:center;padding:0 10px;">
+  <label style="display:flex;align-items:center;gap:8px;font-size:14px;">
+    <input id="darkToggle" type="checkbox"> Dark mode
+  </label>
+</div>
+<div class="container">
+<h1>RBI Quiz</h1>
+<div id="qCount">Question 1 / 20</div>
+<div id="timer">Time left: <span id="timeNum">20</span>s</div>
+<div id="timerBarContainer"><div id="timerBar"></div></div>
+<div id="quizArea"></div>
+<div id="resultArea"></div>
+<footer>Made by Your Name</footer>
+</div>
+
+<script>
+/* Dark mode toggle */
+const toggle = document.getElementById("darkToggle");
+toggle.addEventListener("change", ()=>{document.body.classList.toggle("dark", toggle.checked);});
+
+/* Quiz data */
+const questions = [
+{q:"What does RBI stand for?",options:["Reserve Bank of India","Royal Bank Institute","Rate Board International","Reserve Bureau of India"],answer:"Reserve Bank of India"},
+{q:"When was RBI established?",options:["1935","1947","1951","1920"],answer:"1935"},
+{q:"Where is the RBI headquarters located?",options:["Mumbai","Delhi","Kolkata","Chennai"],answer:"Mumbai"},
+{q:"Which currency is used in India?",options:["Indian Rupee","Dollar","Yen","Euro"],answer:"Indian Rupee"},
+{q:"Who issues Indian currency notes?",options:["RBI","Government of India","State Bank of India","Finance Ministry"],answer:"RBI"},
+{q:"Which act formed the RBI?",options:["RBI Act 1934","Banking Regulation Act 1949","Companies Act 1956","Finance Act 1935"],answer:"RBI Act 1934"},
+{q:"Who leads the RBI?",options:["Governor","President","Prime Minister","Finance Minister"],answer:"Governor"},
+{q:"How many deputy governors does RBI have?",options:["4","3","5","6"],answer:"4"},
+{q:"What is CRR?",options:["Cash Reserve Ratio","Central Reserve Rate","Currency Regulation Ratio","Cash Regulatory Rate"],answer:"Cash Reserve Ratio"},
+{q:"What is SLR?",options:["Statutory Liquidity Ratio","Special Lending Rate","Standard Loan Requirement","Statutory Loan Ratio"],answer:"Statutory Liquidity Ratio"},
+{q:"Who controls monetary policy in India?",options:["RBI","Government of India","Finance Ministry","Parliament"],answer:"RBI"},
+{q:"What is the Monetary Policy Committee called?",options:["MPC","RBI Committee","Finance Board","Policy Board"],answer:"MPC"},
+{q:"Who appoints the RBI Governor?",options:["Government of India","Prime Minister","Finance Minister","Parliament"],answer:"Government of India"},
+{q:"What does NEFT stand for?",options:["National Electronic Funds Transfer","New Electronic Fund Technology","National Exchange Fund Transfer","National E-Finance Transfer"],answer:"National Electronic Funds Transfer"},
+{q:"What does RTGS stand for?",options:["Real Time Gross Settlement","Rapid Transfer Global System","Real Transaction Guaranteed Service","Registered Transfer Global Standard"],answer:"Real Time Gross Settlement"},
+{q:"Who prints coins in India?",options:["Government of India","RBI","State Banks","Mint Authority"],answer:"Government of India"},
+{q:"Which bank is the central bank of India?",options:["RBI","State Bank of India","HDFC","ICICI"],answer:"RBI"},
+{q:"What does RBI regulate?",options:["Monetary Policy","Traffic Rules","Education System","Stock Market"],answer:"Monetary Policy"},
+{q:"What does RBI manage related to banks?",options:["Banking Regulation","Stock Exchange","Insurance Companies","Business Licenses"],answer:"Banking Regulation"},
+{q:"What is the Indian payment system overseen by RBI?",options:["Centralized Payment Systems","UPI Only","Digital Wallets","Private Banks"],answer:"Centralized Payment Systems"}
+];
+
+let current=0;
+let score=0;
+let timer;
+let timeLeft=20;
+
+function loadQuestion(){
+  const q = questions[current];
+  document.getElementById("resultArea").innerHTML="";
+  document.getElementById("qCount").textContent=`Question ${current+1} / ${questions.length}`;
+  let optionsHTML="";
+  let opts=[...q.options];
+  for(let i=opts.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [opts[i],opts[j]]=[opts[j],opts[i]];
+  }
+  opts.forEach(opt=>{
+    optionsHTML+=`<button class="option-btn" onclick="selectOption('${opt}')">${opt}</button>`;
+  });
+  document.getElementById("quizArea").innerHTML=`<div class="question">${q.q}</div>${optionsHTML}`;
+  startTimer();
+}
+
+function startTimer(){
+  timeLeft=20;
+  document.getElementById("timeNum").textContent=timeLeft;
+  document.getElementById("timerBar").style.width="100%";
+  timer=setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timeNum").textContent=timeLeft;
+    document.getElementById("timerBar").style.width=(timeLeft/20*100)+"%";
+    if(timeLeft<=0){
+      clearInterval(timer);
+      lockOptions();
+      setTimeout(nextQuestion,800);
+    }
+  },1000);
+}
+
+function lockOptions(){
+  const btns=document.querySelectorAll(".option-btn");
+  btns.forEach(b=>b.disabled=true);
+}
+
+function selectOption(selected){
+  clearInterval(timer);
+  const q=questions[current];
+  const btns=document.querySelectorAll(".option-btn");
+  btns.forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent===q.answer) btn.classList.add("option-correct");
+    if(btn.textContent===selected && selected!==q.answer) btn.classList.add("option-wrong");
+  });
+  if(selected===q.answer) score++;
+  setTimeout(nextQuestion,800);
+}
+
+function nextQuestion(){
+  current++;
+  if(current<questions.length) loadQuestion();
+  else showResult();
+}
+
+function showResult(){
+  document.getElementById("quizArea").innerHTML="";
+  document.getElementById("timer").textContent="";
+  document.getElementById("timerBar").style.width="0%";
+  document.getElementById("qCount").textContent="Quiz Finished!";
+  document.getElementById("resultArea").innerHTML=`<h2>Your Score: ${score} / ${questions.length}</h2><button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>`;
+}
+
+function restartQuiz(){
+  current=0;
+  score=0;
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+<!-- PART 2 : Da Hari Diss Treck -->
+<style>
+#hariRapContainer {
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  background:#ffefef;
+  border:1px solid #ff5c5c;
+  border-radius:8px;
+  font-size:14px;
+  color:#900;
+  white-space:pre-line;
+  line-height:1.5;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+}
+#hariRapContainer.show {
+  display:block;
+  max-height:300px;
+  opacity:1;
+}
+#footerDontBtn {
+  padding:6px 12px; background:#ff5c5c; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px;
+}
+#footerDontBtn:hover { background:#e04444; }
+</style>
+
+<script>
+/* Add button dynamically to footer */
+const footer = document.querySelector("footer");
+const dontBtn = document.createElement("button");
+dontBtn.id = "footerDontBtn";
+dontBtn.textContent = "Don't click";
+footer.appendChild(dontBtn);
+
+/* Create rap container with new 7-line savage rap */
+const rapDiv = document.createElement("div");
+rapDiv.id = "hariRapContainer";
+rapDiv.textContent = `Yo Hari, you ghostin', never showin' up in sight,
+We grind all day, while you vanish in the night.
+Code piling high, you're stuck in the pit,
+While we debug, you just throw a fit.
+Ideas are flowing, your brain's on freeze,
+We push the build, you nap with ease.
+Step up, bro, or vanish in defeat!`;
+footer.appendChild(rapDiv);
+
+/* Toggle rap visibility */
+let rapVisible = false;
+dontBtn.addEventListener("click", ()=>{
+  rapVisible = !rapVisible;
+  if(rapVisible){
+    rapDiv.classList.add("show");
+    dontBtn.textContent = "Close";
+  } else {
+    rapDiv.classList.remove("show");
+    dontBtn.textContent = "Check File ";
+  }
+});
+</script>
+
+</body>
+</html>
