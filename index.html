@@ -428,27 +428,6 @@ restartGame=function(){
 </script>
 <!-- SECTION 5: Footer, Hari Diss, Restart, Easter Eggs -->
 <script>
-// Footer Hari diss already exists, add some style for animation
-const hariRap = document.getElementById("hariRapContainer");
-hariRap.style.transition = "max-height 0.5s ease, opacity 0.5s ease";
-hariRap.style.maxHeight = "0px";
-hariRap.style.opacity = 0;
-hariRap.style.overflow = "hidden";
-
-let rapVisible = false;
-const dontBtn = document.getElementById("footerDontBtn");
-dontBtn.addEventListener("click",()=>{
-  rapVisible = !rapVisible;
-  if(rapVisible){
-    hariRap.style.maxHeight="300px";
-    hariRap.style.opacity=1;
-    dontBtn.textContent="HANjil KUMAR";
-  }else{
-    hariRap.style.maxHeight="0px";
-    hariRap.style.opacity=0;
-    dontBtn.textContent="Don't click";
-  }
-});
 
 // Game Over enhancement
 function gameOver(){
