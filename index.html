@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DA RBI QUEEZ</title>
+<title>THE RBI QUIZ</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#121212; color:#eee; transition: background 0.3s, color 0.3s; }
 .container { max-width:900px; margin:20px auto; padding:20px; background:#1f1f1f; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
@@ -34,7 +34,7 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
   <label><input type="checkbox" id="darkToggle"> Toggle Theme</label>
 </div>
 <div class="container">
-<h1>Da RBI Game</h1>
+<h1>RBI Game</h1>
 <div class="stats">
   <div class="stat">Economy: <span id="economy">50</span></div>
   <div class="stat">Bank Health: <span id="bank">50</span></div>
@@ -100,11 +100,11 @@ const events=[
   {text:"Month 1: Inflation spikes unexpectedly!", options:[
     {text:"Raise interest rates sharply", economy:-5, bank:+5, public:-7, inflation:-3},
     {text:"Inject liquidity slowly", economy:+4, bank:-2, public:+2, inflation:+1},
-    {text:"Look at Hari", economy:-10, bank:0, public:-5, inflation:+5}
+    {text:"Do nothing", economy:-10, bank:0, public:-5, inflation:+5}
   ]},
   {text:"Month 2: A major bank hides fraud reports!", options:[
     {text:"Launch surprise audit", economy:-3, bank:+6, public:+1},
-    {text:"Cover up quietly to save Hari", economy:0, bank:-12, public:-6},
+    {text:"Cover up quietly ", economy:0, bank:-12, public:-6},
     {text:"Fine and restructure bank", economy:-1, bank:+4, public:-1}
   ]},
   {text:"Month 3: Public demands faster digital payments!", options:[
@@ -215,7 +215,7 @@ function gameOver(){
   document.getElementById("timer").textContent="";
   document.getElementById("messageArea").textContent="Check stats and try again!";
   if(economy>80 && bank>80 && publicHappiness>80){
-    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed it! 🎉";
+    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed da SQUIRREL! 🎉";
   }
 }
 
@@ -431,13 +431,13 @@ restartGame=function(){
 
 // Game Over enhancement
 function gameOver(){
-  document.getElementById("eventArea").textContent="W speed ❤️‍🩹";
+  document.getElementById("eventArea").textContent="W Speed ❤️‍🩹";
   document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
   document.getElementById("timer").textContent="";
   document.getElementById("messageArea").textContent="Check your stats and try again!";
   // Easter egg: if all stats > 80, special message
   if(economy>80 && bank>80 && publicHappiness>80){
-    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed it! W speed ❤️‍🩹";
+    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed da SQUIRREL! W speed ❤️‍🩹";
   }
 }
 
@@ -459,7 +459,7 @@ let clickCount=0;
 title.addEventListener("click",()=>{
   clickCount++;
   if(clickCount>=10){
-    document.getElementById("messageArea").textContent="💥 Secret RBI Hack Activated!HARI BOUTA DANCE ON ALL FOURS💥";
+    document.getElementById("messageArea").textContent="💥 Secret RBI Hack Activated!SQUIRREL BOUTA DANCE ON ALL FOURS💥";
     clickCount=0;
   }
 });
