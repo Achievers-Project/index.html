@@ -169,7 +169,7 @@ function startTimer(){
     document.getElementById("timeNum").textContent=timeLeft;
     if(timeLeft<=0){
       clearInterval(timer);
-      document.getElementById("messageArea").textContent="⏰ Time's up! Default action applied.";
+      document.getElementById("messageArea").textContent="TIMES UP! DEFAULT ACTION APPLIED.";
       applyOption(events[Math.min(month-1,events.length-1)].options[0]);
     }
   },1000);
@@ -214,7 +214,7 @@ function gameOver(){
   document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
   document.getElementById("timer").textContent="";
   document.getElementById("messageArea").textContent="Check stats and try again!";
-  if(economy>80 && bank>80 && publicHappiness>80){
+  if(economy>70 && bank>50 && publicHappiness>50){
     document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed da SQUIRREL! 🎉";
   }
 }
