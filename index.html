@@ -69,7 +69,7 @@ darkToggle.addEventListener("change", ()=>{
 });
 
 // Stats initialization
-let economy=500, bank=500, publicHappiness=500, inflation=500, liquidity=500;
+let economy=50, bank=50, publicHappiness=50, inflation=0, liquidity=50;
 let month=1, maxMonth=12;
 let timer, timeLeft=20;
 
@@ -97,7 +97,7 @@ function updateStats(){
 
 // Month-specific events with tricky options
 const events=[
-  {text:"Month 1: Inflation spikes unexpectedly!", options:[
+  {text:" Inflation spikes unexpectedly!", options:[
     {text:"Raise interest rates sharply", economy:-5, bank:+5, public:-7, inflation:-3},
     {text:"Inject liquidity slowly", economy:+4, bank:-2, public:+2, inflation:+1},
     {text:"Do nothing", economy:-10, bank:0, public:-5, inflation:+5}
