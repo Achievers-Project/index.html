@@ -334,6 +334,7 @@ function startMiniGame(){
       currentMiniGame = evt.type;
       break;
 
+      
     case "buttons":
       evt.options.forEach(opt=>{
         const btn = document.createElement("button");
@@ -437,14 +438,14 @@ function gameOver(){
   document.getElementById("messageArea").textContent="Check your stats and try again!";
   // Easter egg: if all stats > 80, special message
   if(economy>80 && bank>80 && publicHappiness>80){
-    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed da SQUIRREL! W speed ❤️‍🩹";
+    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You win! W speed ❤️‍🩹";
   }
 }
 
 // Restart game enhancement
 function restartGame(){
   economy=50; bank=50; publicHappiness=50; inflation=5; liquidity=50; month=1;
-  document.getElementById("messageArea").textContent="";
+  document.getElementById("messageArea").textContent="Don't click";
   rapVisible=false;
   hariRap.style.maxHeight="0px";
   hariRap.style.opacity=0;
@@ -464,9 +465,7 @@ title.addEventListener("click",()=>{
   }
 });
 </script>
-  <a href="https://potatotomato.netlify.app/
-    ">
-       
+  <a href="https://potatotomato.netlify.app/">
 </a>
 
 </body>
