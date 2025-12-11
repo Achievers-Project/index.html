@@ -441,15 +441,16 @@ function gameOver(){
   document.getElementById("eventArea").textContent="You're a great governer";
   document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
   document.getElementById("timer").textContent="";
-  document.getElementById("messageArea").textContent="Check your stats and try again!";
+  document.getElementById("messageArea").textContent="Well played!";
   // Easter egg: if all stats > 80, special message
   if(economy>80 && bank>80 && publicHappiness>80){
     document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
   }
-}
+
  if(economy>50 && bank>50 && publicHappiness>50){
     document.getElementById("messageArea").textContent="You are not fit be an RBI Governor🥲";
  }
+}
 // Restart game enhancement
 function restartGame(){
   economy=50; bank=50; publicHappiness=50; inflation=5; liquidity=50; month=1;
