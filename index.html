@@ -53,7 +53,7 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
 <div id="buttonsArea"></div>
 <div id="messageArea"></div>
 <footer>
-  <span>Made by Syed & Hari / RBI 2025</span>
+  <span>Made by Syed  / RBI©2025</span>
   <button id="footerDontBtn">Don't click</button>
 </footer>
 <div id="hariRapContainer">
@@ -443,11 +443,11 @@ function gameOver(){
   document.getElementById("timer").textContent="";
   document.getElementById("messageArea").textContent="Well played!";
   // Easter egg: if all stats > 80, special message
-  if(economy>80 && bank>80 && publicHappiness>80){
+  if(economy>60 && bank>60 && publicHappiness>60){
     document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
   }
 
- if(economy>50 && bank>50 && publicHappiness>50){
+ if(economy<50 && bank<50 && publicHappiness<50){
     document.getElementById("messageArea").textContent="You are not fit be an RBI Governor🥲";
  }
 }
