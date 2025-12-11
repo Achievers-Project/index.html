@@ -134,7 +134,7 @@ const events=[
   ]},
   {text:" Foreign investment surges unexpectedly!", options:[
     {text:"Encourage further investment", economy:+6, bank:+2, public:+2},
-    {text:"Restrict foreign funds for F1", economy:-4, bank:-2, public:-1},
+    {text:"Restrict foreign funds for Education", economy:-4, bank:-2, public:-1},
     {text:"Monitor and report only", economy:+1, bank:+1, public:0}
   ]},
   {text:" RBI faces cybersecurity attack!", options:[
@@ -166,7 +166,7 @@ const events=[
 
 // Timer functions
 function startTimer(){
-  timeLeft=20;
+  timeLeft=30;
   document.getElementById("timeNum").textContent=timeLeft;
   clearInterval(timer);
   timer=setInterval(()=>{
@@ -437,13 +437,13 @@ restartGame=function(){
 
 // Game Over enhancement
 function gameOver(){
-  document.getElementById("eventArea").textContent="W Speed ❤️‍🩹";
+  document.getElementById("eventArea").textContent="You're a great governer";
   document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
   document.getElementById("timer").textContent="";
   document.getElementById("messageArea").textContent="Check your stats and try again!";
   // Easter egg: if all stats > 80, special message
   if(economy>80 && bank>80 && publicHappiness>80){
-    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You win! W speed ❤️‍🩹";
+    document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
   }
 }
 
