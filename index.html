@@ -74,7 +74,7 @@ darkToggle.addEventListener("change", ()=>{
 });
 
 // Stats initialization
-let economy=50, bank=50, publicHappiness=50, inflation=0, liquidity=50;
+let economy=0, bank=0, publicHappiness=0, inflation=0, liquidity=0;
 let month=1, maxMonth=12;
 let timer, timeLeft=20;
 
@@ -446,7 +446,9 @@ function gameOver(){
     document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
   }
 }
-
+ if(economy>50 && bank>50 && publicHappiness>50){
+    document.getElementById("mesageArea").textContent="You are not fit be an RBI Governor🥲";
+ }
 // Restart game enhancement
 function restartGame(){
   economy=50; bank=50; publicHappiness=50; inflation=5; liquidity=50; month=1;
