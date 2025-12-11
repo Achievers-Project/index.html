@@ -105,15 +105,15 @@ const events=[
   {text:" Inflation spikes unexpectedly!", options:[
     {text:"Raise interest rates sharply", economy:-5, bank:+5, public:-7, inflation:-3},
     {text:"Inject liquidity slowly", economy:+4, bank:-2, public:+2, inflation:+1},
-    {text:"Do nothing", economy:-10, bank:0, public:-5, inflation:+5}
+    {text:"Do nothing", economy:-5, bank:0, public:-5, inflation:+5}
   ]},
   {text:"A major bank hides fraud reports!", options:[
     {text:"Launch surprise audit", economy:-3, bank:+6, public:+1},
-    {text:"Cover up quietly for govt ", economy:0, bank:-12, public:-6},
+    {text:"Cover up quietly for govt ", economy:0, bank:-2, public:-6},
     {text:"Fine and restructure bank", economy:-1, bank:+4, public:-1}
   ]},
   {text:" Public demands faster digital payments!", options:[
-    {text:"Invest heavily in digital infrastructure", economy:+5, bank:+3, public:+6, liquidity:-4},
+    {text:"Invest heavily in digital infrastructure", economy:+5, bank:+3, public:+6, liquidity:+4},
     {text:"Ignore demands", economy:0, bank:0, public:-8},
     {text:"Subsidize banks to improve services", economy:-3, bank:+4, public:+3}
   ]},
@@ -124,7 +124,7 @@ const events=[
   ]},
   {text:" Liquidity crunch reported by banks!", options:[
     {text:"Inject emergency funds", liquidity:+12, economy:+3, bank:+5, public:+2},
-    {text:"Invest on Video games", liquidity:-5, economy:-3, bank:-6, public:-3},
+    {text:"Invest on Video games", liquidity:-5, economy:-3, bank:-3, public:-3},
     {text:"Borrow from foreign banks", liquidity:+6, bank:+2, economy:0, public:0}
   ]},
   {text:" RBI mobile app crashes repeatedly!", options:[
@@ -134,12 +134,12 @@ const events=[
   ]},
   {text:" Foreign investment surges unexpectedly!", options:[
     {text:"Encourage further investment", economy:+6, bank:+2, public:+2},
-    {text:"Restrict foreign funds for Education", economy:-4, bank:-2, public:-1},
+    {text:"Restrict foreign funds for Education", economy:-3, bank:-2, public:-1},
     {text:"Monitor and report only", economy:+1, bank:+1, public:0}
   ]},
   {text:" RBI faces cybersecurity attack!", options:[
     {text:"Invest heavily in security", liquidity:-5, bank:+5, public:+3},
-    {text:"Ignore minor attacks", bank:-5, public:-3},
+    {text:"Ignore minor attacks", bank:+5, public:-3},
     {text:"Call foriegn support", liquidity:-3, bank:+3, economy:-1}
   ]},
   {text:" Public protests over rising inflation!", options:[
@@ -155,7 +155,7 @@ const events=[
   {text:" Sudden economic boom in export sector!", options:[
     {text:"Support exports with loans", economy:+6, bank:-2, liquidity:-3},
     {text:"Tax exports heavily", economy:-4, bank:+1, public:-2},
-    {text:"Dance to Gods plan", economy:+2, bank:0, public:0}
+    {text:"Invest on stocks", economy:+2, bank:0, public:0}
   ]},
   {text:" Year-end liquidity planning!", options:[
     {text:"Redistribute funds to needy banks", liquidity:+5, public:+3, bank:+2},
@@ -215,12 +215,12 @@ function nextEvent(){
 
 // Game over
 function gameOver(){
-  document.getElementById("eventArea").textContent="W speed❤️‍🩹";
+  document.getElementById("eventArea").textContent="Well played";
   document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
   document.getElementById("timer").textContent="";
   document.getElementById("messageArea").textContent="Check stats and try again!";
   if(economy>70 && bank>50 && publicHappiness>50){
-    document.getElementById("messageArea").textContent="🎉 Legendary Governor! You crushed da SQUIRREL! 🎉";
+    document.getElementById("messageArea").textContent="Legendary Governor! You crushed it";
   }
 }
 
