@@ -31,10 +31,12 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
 </style>
 </head>
 <body>
- <h2> <a href="https://potatotomato.netlify.app/">
-  <img src = "https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" alt="" width="150" height="150">
+  <a href="https://potatotomato.netlify.app/">
+  <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" style="display:block; margin-left:auto; margin-right:0;">
 </a>
- </h2>
+
+
+ 
 <div id="darkToggleContainer">
   <label><input type="checkbox" id="darkToggle"> Toggle Theme</label>
 </div>
@@ -447,7 +449,7 @@ function gameOver(){
     document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
   }
 
- if(economy<50 && bank<50 && publicHappiness<50){
+ if(economy<50 && bank<50 ){
     document.getElementById("messageArea").textContent="You are not fit be an RBI Governor🥲";
  }
 }
