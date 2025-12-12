@@ -31,9 +31,31 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
 </style>
 </head>
 <body>
+<style>
+  .image-container {
+    text-align: center;   /* centers content horizontally */
+    margin-top: 20px;     /* pushes image down, not at top */
+  }
+
+  .image-container img {
+    vertical-align: middle; /* aligns image with text vertically */
+    margin: 0 10px;         /* spacing around image */
+  }
+
+  .text {
+    display: inline-block;  /* keeps text inline with image */
+    vertical-align: middle; /* aligns text with image */
+  }
+</style>
+
+
+
+<div class="image-container">
   <a href="https://potatotomato.netlify.app/">
-  <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" style="display:block; margin-left:auto; margin-right:0;" width="150" height="200">
-</a>
+    <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" alt="Sample" width="150">
+  </a>
+  <span class="text">This is the text beside the image.</span>
+</div>
 
 
  
