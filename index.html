@@ -462,13 +462,13 @@ restartGame=function(){
 
 // Game Over enhancement
 function gameOver(){
-  document.getElementById("eventArea").textContent="You're a great governer";
+  document.getElementById("messageArea").textContent="GAME OVER";
   document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
-  document.getElementById("timer").textContent="";
-  document.getElementById("messageArea").textContent="Well played!";
+  document.getElementById("timer").textContent="Time's up";
+
   // Easter egg: if all stats > 80, special message
   if(economy>60 && bank>60 && publicHappiness>60){
-    document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
+    document.getElementById("eventArea").textContent=" Legendary Governor! You win! Good Game";
   }
 
  if(economy<50 && bank<50 ){
