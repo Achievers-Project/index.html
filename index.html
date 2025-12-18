@@ -6,49 +6,159 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE RBI GAME</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#121212; color:#eee; transition: background 0.3s, color 0.3s; }
-.container { max-width:900px; margin:20px auto; padding:20px; background:#1f1f1f; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
+body {
+  font-family: Arial, sans-serif;
+  margin:0;
+  padding:0;
+  background:#121212;
+  color:#eee;
+  transition: background 0.3s, color 0.3s;
+}
+
+.container {
+  max-width:900px;
+  margin:20px auto;
+  padding:20px;
+  background:#1f1f1f;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
 h1 { text-align:center; margin-bottom:20px; }
-  h2 { text-align:center; margin-bottom:10px; }
-.stats { display:flex; justify-content:space-around; margin-bottom:20px; flex-wrap:wrap; }
-.stat { font-size:16px; font-weight:bold; margin:5px 0; }
-.eventBox { background:#2b2b2b; padding:15px; border-radius:8px; margin-bottom:20px; min-height:80px; }
-#buttonsArea button { padding:10px 15px; margin:5px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+h2 { text-align:center; margin-bottom:10px; }
+
+.stats {
+  display:flex;
+  justify-content:space-around;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+
+.stat {
+  font-size:16px;
+  font-weight:bold;
+  margin:5px 0;
+}
+
+.eventBox {
+  background:#2b2b2b;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:20px;
+  min-height:80px;
+}
+
+#buttonsArea button {
+  padding:10px 15px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
 #buttonsArea button:hover { opacity:0.9; }
-#darkToggleContainer { text-align:right; margin-bottom:10px; }
-#timer { font-weight:bold; margin-bottom:10px; font-size:16px; text-align:center; }
+
+#darkToggleContainer {
+  text-align:right;
+  margin-bottom:10px;
+}
+
+#timer {
+  font-weight:bold;
+  margin-bottom:10px;
+  font-size:16px;
+  text-align:center;
+}
+
 .graphContainer { margin:20px 0; }
-.graphBar { height:20px; margin:5px 0; border-radius:6px; transition:width 0.5s; }
+
+.graphBar {
+  height:20px;
+  margin:5px 0;
+  border-radius:6px;
+  transition:width 0.5s;
+}
+
 .economyBar { background:#6a5acd; }
 .bankBar { background:#35d46a; }
 .publicBar { background:#ff5c5c; }
 .inflationBar { background:#ffbf00; }
 .liquidityBar { background:#00bfff; }
-footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display:flex; justify-content:space-between; align-items:center; padding:0 10px; }
-#hariRapContainer { display:none; margin-top:10px; padding:12px; background:#2f0000; border-radius:8px; color:#fff; white-space:pre-line; line-height:1.5; }
-#footerDontBtn { padding:6px 12px; background:#ff5c5c; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+
+footer {
+  margin-top:20px;
+  text-align:center;
+  font-size:14px;
+  color:#aaa;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 10px;
+}
+
+#hariRapContainer {
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  background:#2f0000;
+  border-radius:8px;
+  color:#fff;
+  white-space:pre-line;
+  line-height:1.5;
+}
+
+#footerDontBtn {
+  padding:6px 12px;
+  background:#ff5c5c;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
 #footerDontBtn:hover { background:#e04444; }
+
+/* ✅ Holy NIGGER*/
+body.dark {
+  background:#f2f2f2;
+  color:#111;
+}
+
+body.dark .container {
+  background:#ffffff;
+  color:#111;
+}
+
+body.dark .eventBox {
+  background:#e6e6e6;
+}
+
+body.dark footer {
+  color:#444;
+}
 </style>
 </head>
+
 <body>
+
 <style>
-  .image-container {
-    text-align: center;   /* centers content horizontally */
-    margin-top: 20px;     /* pushes image down, not at top */
-  }
+.image-container {
+  text-align: center;
+  margin-top: 20px;
+}
 
-  .image-container img {
-    vertical-align: middle; /* aligns image with text vertically */
-    margin: 0 10px;         /* spacing around image */
-  }
+.image-container img {
+  vertical-align: middle;
+  margin: 0 10px;
+}
 
-  .text {
-    display: inline-block;  /* keeps text inline with image */
-    vertical-align: middle; /* aligns text with image */
-  }
+.text {
+  display: inline-block;
+  vertical-align: middle;
+}
 </style>
-
-
 
 <div class="image-container">
   <a href="https://potatotomato.netlify.app/">
@@ -57,13 +167,13 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
   <span class="text">RBI Logo</span>
 </div>
 
-
- 
 <div id="darkToggleContainer">
   <label><input type="checkbox" id="darkToggle"> Toggle Theme</label>
 </div>
+
 <div class="container">
 <h1>RBI Game</h1>
+
 <div class="stats">
   <div class="stat">Economy: <span id="economy">50</span></div>
   <div class="stat">Bank Health: <span id="bank">50</span></div>
@@ -71,15 +181,18 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
   <div class="stat">Inflation: <span id="inflation">5%</span></div>
   <div class="stat">Liquidity: <span id="liquidity">50</span></div>
 </div>
+
 <div id="graphArea" class="graphContainer"></div>
 <div id="timer">Time Left: <span id="timeNum">20</span>s</div>
 <div id="eventArea" class="eventBox"></div>
 <div id="buttonsArea"></div>
 <div id="messageArea"></div>
+
 <footer>
   <span>Made by Syed & Hari  / RBI©2025</span>
   <button id="footerDontBtn">Don't click</button>
 </footer>
+
 <div id="hariRapContainer">
 Yo Hari, always missing in the grind,  
 We code all night, you lag behind.  
@@ -89,6 +202,7 @@ Step up now, face the heat,
 Or watch your defeat repeat.  
 No contribution? That’s your beat!  
 </div>
+
 <!-- SECTION 2: Full Game Logic with Month Events and Hari Diss -->
 <script>
 // Dark theme toggle
@@ -98,35 +212,46 @@ darkToggle.addEventListener("change", ()=>{
 });
 
 // Stats initialization
-let economy=50, bank=50, publicHappiness=50, inflation=5, liquidity=20
-  ;
-let month=1, maxMonth=12;
-let timer, timeLeft=20;
+let economy = 50,
+    bank = 50,
+    publicHappiness = 50,
+    inflation = 5,
+    liquidity = 50; // FIX: match UI
+
+let month = 1, maxMonth = 12;
+let timer, timeLeft = 20;
 
 // Update graph bars
 function updateGraph(){
   const graphArea = document.getElementById("graphArea");
+
+  const econWidth = Math.min(economy, 100);
+  const bankWidth = Math.min(bank, 100);
+  const publicWidth = Math.min(publicHappiness, 100);
+  const inflationWidth = Math.min(inflation * 5, 100);
+  const liquidityWidth = Math.min(liquidity, 100);
+
   graphArea.innerHTML = `
-    <div class="graphBar economyBar" style="width:${economy}%;">Economy: ${economy}</div>
-    <div class="graphBar bankBar" style="width:${bank}%;">Bank Health: ${bank}</div>
-    <div class="graphBar publicBar" style="width:${publicHappiness}%;">Public Happiness: ${publicHappiness}</div>
-    <div class="graphBar inflationBar" style="width:${inflation*5}%;">Inflation: ${inflation}%</div>
-    <div class="graphBar liquidityBar" style="width:${liquidity}%;">Liquidity: ${liquidity}</div>
+    <div class="graphBar economyBar" style="width:${econWidth}%;">Economy: ${economy}</div>
+    <div class="graphBar bankBar" style="width:${bankWidth}%;">Bank Health: ${bank}</div>
+    <div class="graphBar publicBar" style="width:${publicWidth}%;">Public Happiness: ${publicHappiness}</div>
+    <div class="graphBar inflationBar" style="width:${inflationWidth}%;">Inflation: ${inflation}%</div>
+    <div class="graphBar liquidityBar" style="width:${liquidityWidth}%;">Liquidity: ${liquidity}</div>
   `;
 }
 
 // Update stats display
 function updateStats(){
-  document.getElementById("economy").textContent=economy;
-  document.getElementById("bank").textContent=bank;
-  document.getElementById("public").textContent=publicHappiness;
-  document.getElementById("inflation").textContent=inflation+"%";
-  document.getElementById("liquidity").textContent=liquidity;
+  document.getElementById("economy").textContent = economy;
+  document.getElementById("bank").textContent = bank;
+  document.getElementById("public").textContent = publicHappiness;
+  document.getElementById("inflation").textContent = inflation + "%";
+  document.getElementById("liquidity").textContent = liquidity;
   updateGraph();
 }
 
 // Month-specific events with tricky options
-const events=[
+const events = [
   {text:" Inflation spikes unexpectedly!", options:[
     {text:"Raise interest rates sharply", economy:-5, bank:+5, public:-7, inflation:-3},
     {text:"Inject liquidity slowly", economy:+4, bank:-2, public:+2, inflation:+1},
@@ -191,18 +316,18 @@ const events=[
 
 // Timer functions
 function startTimer(){
-  timeLeft=30;
-  document.getElementById("timeNum").textContent=timeLeft;
+  timeLeft = 20; // FIX: consistent with UI
+  document.getElementById("timeNum").textContent = timeLeft;
   clearInterval(timer);
-  timer=setInterval(()=>{
+  timer = setInterval(()=>{
     timeLeft--;
-    document.getElementById("timeNum").textContent=timeLeft;
-    if(timeLeft<=0){
-      clearInterval(timer);
-      document.getElementById("messageArea").textContent="TIMES UP! DEFAULT ACTION APPLIED.";
-      applyOption(events[Math.min(month-1,events.length-1)].options[0]);
-    }
-  },1000);
+    document.getElementById("timeNum").textContent = timeLeft;
+    if(timeLeft <= 0){
+clearInterval(timer);
+document.getElementById("messageArea").textContent="TIMES UP! DEFAULT ACTION APPLIED.";
+applyOption(events[Math.min(month-1,events.length-1)].options[0]);
+}
+},1000);
 }
 
 // Apply decision
@@ -220,7 +345,7 @@ function applyOption(opt){
 
 // Next event
 function nextEvent(){
-  if(economy<=0 || bank<=0 || publicHappiness<=0 || month>maxMonth){
+  if(economy<=0 || bank<=0 || publicHappiness<=0 || month>maxMonth+1){
     gameOver();
     return;
   }
@@ -283,7 +408,6 @@ updateStats();
 nextEvent();
 </script>
 
-
 <!-- SECTION 3: Dissing Hari / Interactive Decisions -->
 <script>
 // Mini-game flags
@@ -299,10 +423,12 @@ const miniEvents=[
     {text:"Education", economy:+4, public:+5, liquidity:-4}
   ]}
 ];
+];
 
 // Function to trigger mini-game
 function startMiniGame(){
   if(currentMiniGame) return; // only one at a time
+
   const evt = miniEvents[Math.floor(Math.random()*miniEvents.length)];
   const eventArea = document.getElementById("eventArea");
   const btnArea = document.getElementById("buttonsArea");
@@ -312,6 +438,7 @@ function startMiniGame(){
   switch(evt.type){
     case "dragDrop":
       eventArea.innerHTML = evt.text + `<br><br>`;
+
       for(let i=1;i<=evt.totalLiquidity;i++){
         const coin = document.createElement("div");
         coin.textContent="💰";
@@ -320,9 +447,12 @@ function startMiniGame(){
         coin.style.margin="2px";
         coin.style.cursor="pointer";
         coin.draggable=true;
-        coin.addEventListener("dragstart",(e)=>{ e.dataTransfer.setData("text","1"); });
+        coin.addEventListener("dragstart",(e)=>{
+          e.dataTransfer.setData("text","1");
+        });
         eventArea.appendChild(coin);
       }
+
       const bankDrop = document.createElement("div");
       bankDrop.textContent="🏦 Drop here";
       bankDrop.style.width="150px";
@@ -330,15 +460,20 @@ function startMiniGame(){
       bankDrop.style.border="2px dashed #fff";
       bankDrop.style.marginTop="10px";
       bankDrop.style.textAlign="center";
+
       bankDrop.addEventListener("dragover",(e)=>e.preventDefault());
       bankDrop.addEventListener("drop",(e)=>{
         e.preventDefault();
-        const val = parseInt(e.dataTransfer.getData("text"));
-        liquidity = Math.max(Math.min(liquidity+val*5,100),0);
+
+        liquidity = Math.max(Math.min(liquidity+5,100),0);
         updateStats();
+
         document.getElementById("messageArea").textContent="Liquidity successfully allocated!";
+
+        currentMiniGame = null; // FIX: unlock game
         setTimeout(nextEvent,800);
       });
+
       eventArea.appendChild(bankDrop);
       currentMiniGame = evt.type;
       break;
@@ -351,6 +486,7 @@ function startMiniGame(){
       slider.value=5;
       slider.style.width="80%";
       btnArea.appendChild(slider);
+
       const submitBtn = document.createElement("button");
       submitBtn.textContent="Set Rate";
       submitBtn.onclick=()=>{
@@ -364,7 +500,6 @@ function startMiniGame(){
       currentMiniGame = evt.type;
       break;
 
-      
     case "buttons":
       evt.options.forEach(opt=>{
         const btn = document.createElement("button");
@@ -388,6 +523,12 @@ function startMiniGame(){
 // 30% chance to trigger mini-game on nextEvent
 const originalNextEvent = nextEvent;
 nextEvent = function(){
+  // FIX: respect game over
+  if(economy<=0 || bank<=0 || publicHappiness<=0 || month>maxMonth){
+    gameOver();
+    return;
+  }
+
   if(Math.random()<0.3){
     startMiniGame();
   } else {
@@ -395,7 +536,10 @@ nextEvent = function(){
   }
 }
 </script>
+
 <!-- SECTION 4: Graph Animations & Month Progression -->
+<script>
+// Month display
 <script>
 // Month display
 const monthDisplay = document.createElement("div");
@@ -403,14 +547,17 @@ monthDisplay.style.textAlign="center";
 monthDisplay.style.marginBottom="10px";
 monthDisplay.style.fontWeight="bold";
 monthDisplay.style.fontSize="16px";
-document.querySelector(".container").insertBefore(monthDisplay, document.getElementById("eventArea"));
+document.querySelector(".container").insertBefore(
+  monthDisplay,
+  document.getElementById("eventArea")
+);
 
 // Update month display
 function updateMonth(){
   monthDisplay.textContent = `Month: ${month} / 12`;
 }
 
-// Enhanced graph animation
+// Enhanced graph animation (override intentional)
 function updateGraph(){
   const graphArea = document.getElementById("graphArea");
   graphArea.innerHTML = `
@@ -422,7 +569,7 @@ function updateGraph(){
   `;
 }
 
-// Event fade animation
+// Event fade animation (kept for future use)
 const eventArea = document.getElementById("eventArea");
 const buttonsArea = document.getElementById("buttonsArea");
 function fadeEvent(text, buttons){
@@ -436,65 +583,81 @@ function fadeEvent(text, buttons){
   },200);
 }
 
-// Override nextEvent for fade effect
+// Override nextEvent for month update
 const oldNextEvent = nextEvent;
-nextEvent=function(){
+nextEvent = function(){
   updateMonth();
   oldNextEvent();
 }
 
-// Override applyOption to include fade and month update
+// Override applyOption to include month update
 const oldApplyOption = applyOption;
-applyOption=function(opt){
+applyOption = function(opt){
   oldApplyOption(opt);
   updateMonth();
 }
 
 // RestartGame also updates month display
 const oldRestart = restartGame;
-restartGame=function(){
+restartGame = function(){
   oldRestart();
   updateMonth();
 }
 </script>
+
 <!-- SECTION 5: Footer, Hari Diss, Restart, Easter Eggs -->
 <script>
 
-// Game Over enhancement
+// FINAL Game Over (this version wins)
 function gameOver(){
-  document.getElementById("eventArea").textcontent="Good Game ";
+  document.getElementById("eventArea").textContent="Good Game";
   document.getElementById("messageArea").textContent="GAME OVER";
-  document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
+  document.getElementById("buttonsArea").innerHTML =
+    `<button onclick="restartGame()">Restart Game</button>`;
   document.getElementById("timer").textContent="Time's up";
 
-  // Easter egg: if all stats > 80, special message
+  // Win condition
   if(economy>60 && bank>60 && publicHappiness>60){
-    document.getElementById("eventArea").textContent=" Legendary Governor! You win! Good Game";
+    document.getElementById("eventArea").textContent =
+      "Legendary Governor! You win! Good Game";
   }
 
- if(economy<50 && bank<50 ){
-    document.getElementById("messageArea").textContent="You are not fit be an RBI Governor🥲";
- }
+  // Fail condition
+  if(economy<50 && bank<50){
+    document.getElementById("messageArea").textContent =
+      "You are not fit to be an RBI Governor 🥲";
+  }
 }
-// Restart game enhancement
+
+// Restart game (final)
 function restartGame(){
-  economy=50; bank=50; publicHappiness=50; inflation=5; liquidity=50; month=1;
-  document.getElementById("messageArea").textContent="Don't click";
+  economy=50;
+  bank=50;
+  publicHappiness=50;
+  inflation=5;
+  liquidity=50;
+  month=1;
+
+  document.getElementById("messageArea").textContent="";
+
   rapVisible=false;
   hariRap.style.maxHeight="0px";
   hariRap.style.opacity=0;
   dontBtn.textContent="Don't click";
+
   updateStats();
+  updateMonth();
   nextEvent();
 }
 
-// Optional Easter egg: click the title rapidly
+// Easter egg: click title rapidly
 const title = document.querySelector("h1");
 let clickCount=0;
 title.addEventListener("click",()=>{
   clickCount++;
   if(clickCount>=10){
-    document.getElementById("messageArea").textContent="💥 Secret RBI Hack Activated!SQUIRREL BOUTA DANCE ON ALL FOURS💥";
+    document.getElementById("messageArea").textContent =
+      "💥 Secret RBI Hack Activated! SQUIRREL BOUTA DANCE ON ALL FOURS 💥";
     clickCount=0;
   }
 });
@@ -502,4 +665,3 @@ title.addEventListener("click",()=>{
 
 </body>
 </html>
-
