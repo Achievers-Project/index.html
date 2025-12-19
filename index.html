@@ -1,13 +1,54 @@
-
 <!-- SECTION 1: HTML & Dashboard -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RBI Quiz</title>
 <title>RBI Reserve Run - Creative Edition</title>
-<title>DA RBI QUEEZ</title>
 <style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f7;
+  color: #111;
+  transition: background 0.3s, color 0.3s;
+}
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.15);
+  transition: background 0.3s, color 0.3s;
+}
+h1 { text-align:center; }
+.question { font-size:20px; margin-bottom:16px; font-weight:bold; }
+.option-btn {
+  display:block; width:100%; padding:12px; margin:8px 0;
+  font-size:16px; border:1px solid #888; border-radius:8px;
+  cursor:pointer; background:#eae8ff; transition:background 0.2s;
+}
+.option-btn:hover { background:#d4d0ff; }
+.option-correct { background:#35d46a !important; color:white; }
+.option-wrong { background:#ff5c5c !important; color:white; }
+#timer { font-size:18px; font-weight:bold; margin-bottom:4px; }
+#timerBarContainer { width:100%; height:10px; background:#ccc; border-radius:5px; margin-bottom:12px; }
+#timerBar { width:100%; height:100%; background:#6a5acd; border-radius:5px; transition:width 1s linear; }
+.restart-btn {
+  padding:12px 20px; background:#6a5acd; border:none; border-radius:8px;
+  cursor:pointer; color:white; font-size:18px; margin-top:12px;
+}
+.restart-btn:hover { background:#5848c2; }
+.dark { background:#0f0f0f; color:#eee; }
+.dark .container { background:#1c1c1c; color:#eee; }
+.dark .option-btn { background:#2b2b2b; color:#eee; border:1px solid #777; }
+.dark .option-btn:hover { background:#3a3a3a; }
+.dark .restart-btn { background:#7f6aff; }
+.dark .restart-btn:hover { background:#6b56e5; }
+footer { margin-top:20px; text-align:center; font-size:14px; color:#666; }
+.dark footer { color:#ccc; }
 body { font-family: Arial, sans-serif; margin:0; padding:0; background:#121212; color:#eee; transition: background 0.3s, color 0.3s; }
 .container { max-width:900px; margin:20px auto; padding:20px; background:#1f1f1f; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
 h1 { text-align:center; margin-bottom:20px; }
@@ -32,10 +73,21 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
 </style>
 </head>
 <body>
+<div style="max-width:900px;margin:10px auto;display:flex;justify-content:flex-end;align-items:center;padding:0 10px;">
+  <label style="display:flex;align-items:center;gap:8px;font-size:14px;">
+    <input id="darkToggle" type="checkbox"> Dark mode
+  </label>
 <div id="darkToggleContainer">
   <label><input type="checkbox" id="darkToggle"> Toggle Theme</label>
 </div>
 <div class="container">
+<h1>RBI Quiz</h1>
+<div id="qCount">Question 1 / 20</div>
+<div id="timer">Time left: <span id="timeNum">20</span>s</div>
+<div id="timerBarContainer"><div id="timerBar"></div></div>
+<div id="quizArea"></div>
+<div id="resultArea"></div>
+<footer>Made by Syed and Hari</footer>
 <h1>RBI Reserve Run</h1>
 <div class="stats">
   <div class="stat">Economy: <span id="economy">50</span></div>
@@ -44,6 +96,7 @@ footer { margin-top:20px; text-align:center; font-size:14px; color:#aaa; display
   <div class="stat">Inflation: <span id="inflation">5%</span></div>
   <div class="stat">Liquidity: <span id="liquidity">50</span></div>
 </div>
+
 <div id="graphArea" class="graphContainer"></div>
 <div id="timer">Time Left: <span id="timeNum">20</span>s</div>
 <div id="eventArea" class="eventBox"></div>
@@ -64,12 +117,37 @@ No contribution? That’s your beat!
 </div>
 <!-- SECTION 2: Full Game Logic with Month Events and Hari Diss -->
 <script>
+/* Dark mode toggle */
+const toggle = document.getElementById("darkToggle");
+toggle.addEventListener("change", ()=>{document.body.classList.toggle("dark", toggle.checked);});
+
+
 // Dark theme toggle
 const darkToggle = document.getElementById("darkToggle");
 darkToggle.addEventListener("change", ()=>{
   document.body.classList.toggle("dark", darkToggle.checked);
 });
 
+let current=0;
+let score=0;
+let timer;
+let timeLeft=20;
+
+function loadQuestion(){
+  const q = questions[current];
+  document.getElementById("resultArea").innerHTML="";
+  document.getElementById("qCount").textContent=`Question ${current+1} / ${questions.length}`;
+  let optionsHTML="";
+  let opts=[...q.options];
+  for(let i=opts.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [opts[i],opts[j]]=[opts[j],opts[i]];
+  }
+  opts.forEach(opt=>{
+    optionsHTML+=`<button class="option-btn" onclick="selectOption('${opt}')">${opt}</button>`;
+  });
+  document.getElementById("quizArea").innerHTML=`<div class="question">${q.q}</div>${optionsHTML}`;
+  startTimer();
 // Stats initialization
 let economy=50, bank=50, publicHappiness=50, inflation=5, liquidity=50;
 let month=1, maxMonth=12;
@@ -117,7 +195,6 @@ const events=[
   {text:"Month 4: Sudden economic slowdown!", options:[
     {text:"Reduce interest rates", economy:+6, bank:-2, public:+3, inflation:+2},
     {text:"Increase taxes", economy:-4, bank:0, public:-6, inflation:-1},
-    {text:"Send military for 67 kid", economy:-4, bank:0, public:-6, inflation:-1},
     {text:"Launch stimulus package", economy:+8, bank:-3, public:+5, liquidity:-5}
   ]},
   {text:"Month 5: Liquidity crunch reported by banks!", options:[
@@ -158,27 +235,33 @@ const events=[
   {text:"Month 12: Year-end liquidity planning!", options:[
     {text:"Redistribute funds to needy banks", liquidity:+5, public:+3, bank:+2},
     {text:"Hoarde funds in treasury", liquidity:-5, bank:+2, public:-1},
-    {text:"Invest on Video Games", liquidity:-5, bank:+2, public:-1},
     {text:"Adjust interest rates cautiously", inflation:+1, economy:+1, bank:+1}
   ]}
 ];
 
 // Timer functions
 function startTimer(){
-  timeLeft=20;
-  document.getElementById("timeNum").textContent=timeLeft;
+timeLeft=20;
+document.getElementById("timeNum").textContent=timeLeft;
+  document.getElementById("timerBar").style.width="100%";
   clearInterval(timer);
-  timer=setInterval(()=>{
-    timeLeft--;
-    document.getElementById("timeNum").textContent=timeLeft;
-    if(timeLeft<=0){
-      clearInterval(timer);
+timer=setInterval(()=>{
+timeLeft--;
+document.getElementById("timeNum").textContent=timeLeft;
+    document.getElementById("timerBar").style.width=(timeLeft/20*100)+"%";
+if(timeLeft<=0){
+clearInterval(timer);
+      lockOptions();
+      setTimeout(nextQuestion,800);
       document.getElementById("messageArea").textContent="⏰ Time's up! Default action applied.";
       applyOption(events[Math.min(month-1,events.length-1)].options[0]);
-    }
-  },1000);
+}
+},1000);
 }
 
+function lockOptions(){
+  const btns=document.querySelectorAll(".option-btn");
+  btns.forEach(b=>b.disabled=true);
 // Apply decision
 function applyOption(opt){
   clearInterval(timer);
@@ -192,6 +275,14 @@ function applyOption(opt){
   setTimeout(nextEvent,800);
 }
 
+function selectOption(selected){
+  clearInterval(timer);
+  const q=questions[current];
+  const btns=document.querySelectorAll(".option-btn");
+  btns.forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent===q.answer) btn.classList.add("option-correct");
+    if(btn.textContent===selected && selected!==q.answer) btn.classList.add("option-wrong");
 // Next event
 function nextEvent(){
   if(economy<=0 || bank<=0 || publicHappiness<=0 || month>maxMonth){
@@ -207,11 +298,17 @@ function nextEvent(){
     btn.textContent=opt.text;
     btn.onclick=()=>{ applyOption(opt); };
     btnArea.appendChild(btn);
-  });
+});
+  if(selected===q.answer) score++;
+  setTimeout(nextQuestion,800);
   month++;
   startTimer();
 }
 
+function nextQuestion(){
+  current++;
+  if(current<questions.length) loadQuestion();
+  else showResult();
 // Game over
 function gameOver(){
   document.getElementById("eventArea").textContent="W speed❤️‍🩹";
@@ -223,6 +320,12 @@ function gameOver(){
   }
 }
 
+function showResult(){
+  document.getElementById("quizArea").innerHTML="";
+  document.getElementById("timer").textContent="";
+  document.getElementById("timerBar").style.width="0%";
+  document.getElementById("qCount").textContent="Quiz Finished!";
+  document.getElementById("resultArea").innerHTML=`<h2>Your Score: ${score} / ${questions.length}</h2><button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>`;
 // Restart game
 function restartGame(){
   economy=50; bank=50; publicHappiness=50; inflation=5; liquidity=50; month=1;
@@ -231,6 +334,10 @@ function restartGame(){
   nextEvent();
 }
 
+function restartQuiz(){
+  current=0;
+  score=0;
+  loadQuestion();
 // HARI DISS TRACK FOOTER
 const dontBtn = document.getElementById("footerDontBtn");
 const hariRap = document.getElementById("hariRapContainer");
@@ -358,6 +465,7 @@ function startMiniGame(){
   }
 }
 
+loadQuestion();
 // 30% chance to trigger mini-game on nextEvent
 const originalNextEvent = nextEvent;
 nextEvent = function(){
@@ -368,6 +476,31 @@ nextEvent = function(){
   }
 }
 </script>
+<!-- PART 2 : Da Hari Diss Treck -->
+<style>
+#hariRapContainer {
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  background:#ffefef;
+  border:1px solid #ff5c5c;
+  border-radius:8px;
+  font-size:14px;
+  color:#900;
+  white-space:pre-line;
+  line-height:1.5;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+}
+#hariRapContainer.show {
+  display:block;
+  max-height:300px;
+  opacity:1;
+}
+#footerDontBtn {
+  padding:6px 12px; background:#ff5c5c; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px;
 <!-- SECTION 4: Graph Animations & Month Progression -->
 <script>
 // Month display
@@ -415,6 +548,8 @@ nextEvent=function(){
   updateMonth();
   oldNextEvent();
 }
+#footerDontBtn:hover { background:#e04444; }
+</style>
 
 // Override applyOption to include fade and month update
 const oldApplyOption = applyOption;
@@ -432,6 +567,26 @@ restartGame=function(){
 </script>
 <!-- SECTION 5: Footer, Hari Diss, Restart, Easter Eggs -->
 <script>
+/* Add button dynamically to footer */
+const footer = document.querySelector("footer");
+const dontBtn = document.createElement("button");
+dontBtn.id = "footerDontBtn";
+dontBtn.textContent = "Don't click";
+footer.appendChild(dontBtn);
+
+/* Create rap container with new 7-line savage rap */
+const rapDiv = document.createElement("div");
+rapDiv.id = "hariRapContainer";
+rapDiv.textContent = `Yo Hari, you ghostin', never showin' up in sight,
+We grind all day, while you vanish in the night.
+Code piling high, you're stuck in the pit,
+While we debug, you just throw a fit.
+Ideas are flowing, your brain's on freeze,
+We push the build, you nap with ease.
+Step up, bro, or vanish in defeat!`;
+footer.appendChild(rapDiv);
+
+/* Toggle rap visibility */
 // Footer Hari diss already exists, add some style for animation
 const hariRap = document.getElementById("hariRapContainer");
 hariRap.style.transition = "max-height 0.5s ease, opacity 0.5s ease";
@@ -440,10 +595,16 @@ hariRap.style.opacity = 0;
 hariRap.style.overflow = "hidden";
 
 let rapVisible = false;
+dontBtn.addEventListener("click", ()=>{
 const dontBtn = document.getElementById("footerDontBtn");
 dontBtn.addEventListener("click",()=>{
-  rapVisible = !rapVisible;
-  if(rapVisible){
+rapVisible = !rapVisible;
+if(rapVisible){
+    rapDiv.classList.add("show");
+    dontBtn.textContent = "Close";
+  } else {
+    rapDiv.classList.remove("show");
+    dontBtn.textContent = "Check File ";
     hariRap.style.maxHeight="300px";
     hariRap.style.opacity=1;
     dontBtn.textContent="Close rap";
@@ -451,8 +612,9 @@ dontBtn.addEventListener("click",()=>{
     hariRap.style.maxHeight="0px";
     hariRap.style.opacity=0;
     dontBtn.textContent="Don't click";
-  }
+}
 });
+</script>
 
 // Game Over enhancement
 function gameOver(){
@@ -491,4 +653,3 @@ title.addEventListener("click",()=>{
 </script>
 </body>
 </html>
-
