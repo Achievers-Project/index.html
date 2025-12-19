@@ -54,7 +54,8 @@ vertical-align: middle; /* aligns text with image */
 <a href="https://potatotomato.netlify.app/">
 <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" alt="Sample" width="150">
 </a>
-<span class="text">RBI .</span>
+  <span class="text">This is the text beside the image.</span>
+  <span class="text">RBI .</span>
 </div>
 
 
@@ -98,7 +99,7 @@ document.body.classList.toggle("dark", darkToggle.checked);
 });
 
 // Stats initialization
-let economy=50, bank=50, publicHappiness=50, inflation=5, liquidity=20
+let economy=50, bank=50, publicHappiness=50, inflation=0, liquidity=20
 ;
 let month=1, maxMonth=12;
 let timer, timeLeft=20;
@@ -462,16 +463,13 @@ updateMonth();
 
 // Game Over enhancement
 function gameOver(){
-  document.getElementById("eventArea").textContent="You're a great governer";
-  document.getElementById("messageArea").textContent="GAME OVER";
+document.getElementById("eventArea").textContent="You're a great governer";
 document.getElementById("buttonsArea").innerHTML=`<button onclick="restartGame()">Restart Game</button>`;
-  document.getElementById("timer").textContent="";
-
-
+document.getElementById("timer").textContent="";
+document.getElementById("messageArea").textContent="Well played!";
 // Easter egg: if all stats > 80, special message
 if(economy>60 && bank>60 && publicHappiness>60){
-    document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
-    document.getElementById("eventArea").textContent=" Legendary Governor! You win! Good Game";
+document.getElementById("messageArea").textContent=" Legendary Governor! You win! Good Game";
 }
 
 if(economy<50 && bank<50 ){
@@ -504,4 +502,3 @@ clickCount=0;
 
 </body>
 </html>
-
