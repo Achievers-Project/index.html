@@ -7,43 +7,66 @@
 <style>
   /* Base (dark) theme */
   :root{
-    --bg:#121212;
-    --card:#1f1f1f;
-    --muted:#aaa;
-    --text:#eee;
-    --accent:#6a5acd;
+    --bg:#0f1113;
+    --card:#141516;
+    --muted:#9aa0a6;
+    --text:#e8eef2;
+    --accent-1:#6a5acd;
+    --accent-2:#8b5cf6;
     --success:#35d46a;
     --danger:#ff5c5c;
     --warning:#ffbf00;
     --info:#00bfff;
     --glass: rgba(255,255,255,0.03);
+    --btn-gradient-start: #7b61ff;
+    --btn-gradient-end: #5ad0ff;
   }
   body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);transition:background .25s,color .25s;}
-  .container{max-width:920px;margin:20px auto;padding:20px;background:var(--card);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.6);}
+  .container{max-width:980px;margin:20px auto;padding:20px;background:var(--card);border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.6);}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
   h1{margin:0;font-size:22px}
   .controls{display:flex;gap:8px;align-items:center}
   .stats{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-around;margin-bottom:14px}
   .stat{background:var(--glass);padding:8px 10px;border-radius:8px;font-weight:600;font-size:14px;min-width:140px;text-align:center}
   .graphContainer{margin:14px 0}
-  .graphBar{height:22px;margin:6px 0;border-radius:8px;padding:2px 10px;color:#fff;display:flex;align-items:center;font-weight:600;box-sizing:border-box}
-  .economyBar{background:var(--accent)}
-  .bankBar{background:var(--success)}
-  .publicBar{background:var(--danger)}
-  .inflationBar{background:var(--warning);color:#111}
-  .liquidityBar{background:var(--info)}
-  .eventBox{background:#2b2b2b;padding:14px;border-radius:10px;min-height:80px;margin-bottom:12px;transition:opacity .25s}
+  .graphBar{height:22px;margin:6px 0;border-radius:8px;padding:2px 10px;color:#fff;display:flex;align-items:center;font-weight:600;box-sizing:border-box;overflow:hidden}
+  .economyBar{background:linear-gradient(90deg,var(--accent-1),var(--accent-2))}
+  .bankBar{background:linear-gradient(90deg,var(--success),#3af285)}
+  .publicBar{background:linear-gradient(90deg,var(--danger),#ff8a8a)}
+  .inflationBar{background:linear-gradient(90deg,var(--warning),#ffd95a);color:#111}
+  .liquidityBar{background:linear-gradient(90deg,var(--info),#6fe3ff)}
+  .eventBox{background:#1b1b1c;padding:14px;border-radius:10px;min-height:80px;margin-bottom:12px;transition:opacity .25s, transform .15s}
   #buttonsArea{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-  #buttonsArea button{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;background:#fff1;color:inherit;font-weight:700}
-  #buttonsArea button:hover{opacity:.9}
+  button.btn{position:relative;overflow:hidden;border:0;padding:10px 14px;border-radius:10px;color:#04111a;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--btn-gradient-start),var(--btn-gradient-end));box-shadow:0 6px 18px rgba(106,90,205,0.18);transform:translateZ(0);transition:transform .15s, box-shadow .15s, opacity .12s;}
+  button.btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 26px rgba(106,90,205,0.22)}
+  button.btn:active{transform:translateY(0) scale(.99);box-shadow:0 6px 12px rgba(0,0,0,0.2)}
+  /* subtle gradient variation for secondary buttons */
+  button.btn.ghost{background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); color:var(--text); box-shadow:none;border:1px solid rgba(255,255,255,0.02)}
   #timer{font-weight:700;text-align:center;margin-bottom:8px}
   footer{margin-top:16px;text-align:center;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;padding:0 10px}
   .image-container{text-align:center;margin-top:6px}
   .image-container img{vertical-align:middle;margin:0 10px}
   #hariRapContainer{margin-top:10px;padding:12px;background:#2f0000;border-radius:8px;color:#fff;white-space:pre-line;line-height:1.4;overflow:hidden;max-height:0;opacity:0;transition:max-height .4s ease,opacity .3s ease}
-  #footerDontBtn{padding:6px 10px;background:var(--danger);color:white;border:none;border-radius:8px;cursor:pointer}
-  #footerDontBtn:hover{background:#e04444}
-
+  #footerDontBtn{padding:8px 10px;border-radius:9px;background:var(--danger);color:white;border:0;cursor:pointer}
+  #footerDontBtn:hover{opacity:.95}
+  #leaderboardModal{position:fixed;right:20px;top:20px;width:360px;max-height:80vh;background:linear-gradient(180deg,#0b0b0c,#121212);border-radius:12px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,0.6);transform:translateY(-20px) scale(.98);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.2,.9,.3,1),opacity .28s;overflow:auto;z-index:999}
+  #leaderboardModal.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+  #leaderboardHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  #leaderboardList{display:flex;flex-direction:column;gap:8px}
+  .lb-entry{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));transform:translateY(6px);opacity:0;animation:lbIn .36s forwards}
+  .lb-entry .name{font-weight:800}
+  .lb-entry .score{font-weight:700;color:var(--muted)}
+  .lb-controls{display:flex;gap:6px;align-items:center}
+  .small{font-size:12px;color:var(--muted)}
+  @keyframes lbIn{to{transform:none;opacity:1}}
+  /* button ripple element */
+  .ripple{position:absolute;border-radius:50%;transform:scale(0);background:rgba(255,255,255,0.55);animation:ripple .6s linear;pointer-events:none}
+  @keyframes ripple{to{transform:scale(4);opacity:0}}
+  /* leaderboard header badges */
+  .badge{background:linear-gradient(90deg,#ffffff11,#ffffff06);padding:6px 8px;border-radius:8px;font-weight:800;color:var(--muted);font-size:13px}
+  /* animations for modal buttons */
+  .fade-in-up{opacity:0;transform:translateY(6px);animation:fadeUp .34s forwards}
+  @keyframes fadeUp{to{opacity:1;transform:none}}
   /* Light theme override */
   body.light{
     --bg:#f4f6fb;
@@ -51,6 +74,8 @@
     --muted:#444;
     --text:#111;
     --glass: rgba(0,0,0,0.04);
+    --btn-gradient-start: #6a9fff;
+    --btn-gradient-end: #7b61ff;
   }
 
   /* Small screens */
@@ -58,6 +83,7 @@
     .stat{min-width:48%;font-size:13px}
     .container{padding:14px}
     h1{font-size:18px}
+    #leaderboardModal{left:12px;right:12px;top:auto;bottom:14px;width:auto}
   }
 
   /* Simple utility */
@@ -79,6 +105,7 @@
         <label style="font-size:14px">
           <input type="checkbox" id="themeToggle"> Light mode
         </label>
+        <button id="openLeaderboardBtn" class="btn ghost" title="Open leaderboard">Leaderboard</button>
         <div id="monthDisplay" style="font-weight:700">Month: 1 / 12</div>
       </div>
     </header>
@@ -104,7 +131,7 @@
     <footer>
       <span>Made by Syed / RBI©2025</span>
       <div>
-        <button id="footerDontBtn">Don't click</button>
+        <button id="footerDontBtn" class="btn ghost">Don't click</button>
       </div>
     </footer>
 
@@ -119,8 +146,30 @@ No contribution? That’s your beat!
     </div>
   </div>
 
+  <!-- Leaderboard modal -->
+  <aside id="leaderboardModal" aria-hidden="true" aria-label="Leaderboard">
+    <div id="leaderboardHeader">
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="font-weight:900">Leaderboard</div>
+        <div class="badge small">Top Scores</div>
+      </div>
+      <div class="lb-controls">
+        <button id="clearLeaderboardBtn" class="btn ghost small">Clear</button>
+        <button id="closeLeaderboardBtn" class="btn ghost small">Close</button>
+      </div>
+    </div>
+    <div id="leaderboardList" aria-live="polite">
+      <!-- entries injected here -->
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+      <input id="lbNameInput" placeholder="Your name" style="flex:1;padding:8px;border-radius:8px;border:1px solid #222;background:transparent;color:var(--text)">
+      <button id="submitScoreBtn" class="btn">Submit</button>
+    </div>
+    <div class="small" style="margin-top:8px;color:var(--muted)">Scores saved locally in your browser (localStorage).</div>
+  </aside>
+
 <script>
-/* === Single-file consolidated and corrected game logic === */
+/* === Single-file consolidated and corrected game logic with leaderboard + button animations === */
 
 document.addEventListener('DOMContentLoaded', ()=>{
 
@@ -130,6 +179,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   let timer = null, timeLeft = 30;
   let currentEventIndex = -1;
   let inMiniGame = false;
+  const LB_KEY = 'rbi_leaderboard_v1';
 
   /* --- DOM refs --- */
   const economyEl = document.getElementById('economy');
@@ -147,6 +197,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const themeToggle = document.getElementById('themeToggle');
   const footerDontBtn = document.getElementById('footerDontBtn');
   const hariRap = document.getElementById('hariRapContainer');
+
+  const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');
+  const leaderboardModal = document.getElementById('leaderboardModal');
+  const closeLeaderboardBtn = document.getElementById('closeLeaderboardBtn');
+  const clearLeaderboardBtn = document.getElementById('clearLeaderboardBtn');
+  const leaderboardList = document.getElementById('leaderboardList');
+  const submitScoreBtn = document.getElementById('submitScoreBtn');
+  const lbNameInput = document.getElementById('lbNameInput');
 
   /* --- Events (month-based) --- */
   const events = [
@@ -225,13 +283,35 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   /* --- Utilities --- */
   function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-  function clearTimer(){
-    if(timer){ clearInterval(timer); timer = null; }
+  function clearTimer(){ if(timer){ clearInterval(timer); timer = null; } }
+
+  /* --- Button helper with ripple --- */
+  function makeBtn(text, onClick, opts = {}) {
+    const b = document.createElement('button');
+    b.className = 'btn';
+    if(opts.ghost) b.classList.add('ghost');
+    if(opts.small) b.style.padding = '6px 8px';
+    if(opts.id) b.id = opts.id;
+    b.textContent = text;
+    b.addEventListener('click', (e)=>{
+      // ripple effect
+      const rect = b.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const size = Math.max(rect.width, rect.height) * 1.2;
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+      ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+      b.appendChild(ripple);
+      setTimeout(()=> ripple.remove(), 650);
+      // run the handler after a tiny delay so ripple is visible
+      setTimeout(()=> { try{ onClick(); } catch(err){ console.error(err)} }, 60);
+    });
+    return b;
   }
 
   /* --- UI updates --- */
   function updateGraph(){
-    // Inflation visual scale: inflation% * 4 (max 20 => 80%)
     const inflWidth = clamp(inflation*4, 0, 100);
     graphArea.innerHTML = `
       <div class="graphBar economyBar" style="width:${economy}%;"><span>Economy: ${economy}</span></div>
@@ -269,7 +349,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 
   function applyDefaultForCurrentEvent(){
-    // If in mini-game, just continue to next month
     if(inMiniGame){
       messageArea.textContent = "Mini-game timed out. Proceeding.";
       endEventAndAdvance();
@@ -288,7 +367,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   /* --- Apply option (deltas) --- */
   function applyOption(opt, msg){
     clearTimer();
-    // apply numeric deltas (normalize keys)
     economy = clamp(economy + (opt.econ || opt.economy || 0), 0, 100);
     bank = clamp(bank + (opt.bank || 0), 0, 100);
     publicHappiness = clamp(publicHappiness + (opt.pub || opt.public || 0), 0, 100);
@@ -298,34 +376,45 @@ document.addEventListener('DOMContentLoaded', ()=>{
     messageArea.textContent = msg || (`Action: ${opt.text}`);
     updateStatsDisplay();
 
-    // small delay then advance month / event
-    setTimeout(()=>{
-      endEventAndAdvance();
-    }, 700);
+    setTimeout(()=>{ endEventAndAdvance(); }, 700);
   }
 
   function endEventAndAdvance(){
-    // check immediate lose
     if(economy <= 0 || bank <= 0 || publicHappiness <= 0){
       gameOver();
       return;
     }
     month++;
     if(month > maxMonth){
-      // reached end, evaluate result
       gameOver();
       return;
     }
-    // proceed to next event
     inMiniGame = false;
     nextEvent();
   }
 
   /* --- Game over / restart --- */
+  function computeScore(){
+    // Score formula: months survived weight + stats - inflation penalty
+    const base = (month) * 120;
+    const statSum = economy + bank + publicHappiness + liquidity;
+    const penalty = inflation * 6;
+    const score = Math.max(0, Math.round(base + statSum - penalty));
+    return score;
+  }
+
   function gameOver(){
     clearTimer();
-    buttonsArea.innerHTML = `<button id="restartBtn">Restart Game</button>`;
-    document.getElementById('restartBtn').addEventListener('click', restartGame);
+    buttonsArea.innerHTML = '';
+    const restart = makeBtn('Restart Game', restartGame);
+    restart.id = 'restartBtn';
+    buttonsArea.appendChild(restart);
+
+    // offer submit score button
+    const score = computeScore();
+    const submit = makeBtn('Submit Score', ()=> openLeaderboardAndFill(score), {ghost:true});
+    buttonsArea.appendChild(submit);
+
     timerEl.textContent = '';
     // Message according to performance
     if(economy > 70 && bank > 60 && publicHappiness > 60){
@@ -353,9 +442,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       eventArea.textContent = `Month ${month}: ${evt.text}`;
       buttonsArea.innerHTML = '';
       evt.options.forEach(opt=>{
-        const btn = document.createElement('button');
-        btn.textContent = opt.text;
-        btn.addEventListener('click', ()=> applyOption(opt));
+        const btn = makeBtn(opt.text, ()=> applyOption(opt));
         buttonsArea.appendChild(btn);
       });
     });
@@ -370,10 +457,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     fadeContent(()=> {
       eventArea.innerHTML = `<strong>Mini-Game:</strong> ${evt.text}`;
       if(evt.type === 'dragDrop'){
-        // create coins
         const coinsWrapper = document.createElement('div');
         coinsWrapper.style.marginTop = '10px';
-        let created = 0;
         for(let i=0;i<evt.totalCoins;i++){
           const coin = document.createElement('span');
           coin.textContent = '💰';
@@ -384,14 +469,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
           coin.dataset.value = '1';
           coin.addEventListener('dragstart', (e)=> e.dataTransfer.setData('text/plain', '1'));
           coinsWrapper.appendChild(coin);
-          created++;
         }
         eventArea.appendChild(coinsWrapper);
 
-        // drop target
         const bankDrop = document.createElement('div');
         bankDrop.textContent = '🏦 Drop coins here to add liquidity';
-        bankDrop.style.border = '2px dashed rgba(255,255,255,0.25)';
+        bankDrop.style.border = '2px dashed rgba(255,255,255,0.12)';
         bankDrop.style.padding = '12px';
         bankDrop.style.marginTop = '12px';
         bankDrop.style.borderRadius = '8px';
@@ -399,14 +482,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
         bankDrop.addEventListener('drop', (e)=>{
           e.preventDefault();
           const v = parseInt(e.dataTransfer.getData('text/plain') || '1',10);
-          // each coin gives +5 liquidity
           liquidity = clamp(liquidity + 5 * v, 0, 100);
           updateStatsDisplay();
           messageArea.textContent = 'Liquidity allocated to banks!';
-          // remove the dragged coin visually (try to remove the first matching coin)
           const coinEl = coinsWrapper.querySelector('span');
           if(coinEl) coinEl.remove();
-          // if no more coins, finish mini-game
           if(coinsWrapper.querySelectorAll('span').length === 0){
             setTimeout(()=> endEventAndAdvance(), 700);
           }
@@ -419,9 +499,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         input.min = evt.min; input.max = evt.max; input.value = Math.round((evt.min+evt.max)/2);
         input.style.width = '90%'; input.style.marginTop = '12px';
         buttonsArea.appendChild(input);
-        const submit = document.createElement('button');
-        submit.textContent = 'Set Rate';
-        submit.addEventListener('click', ()=>{
+        const submit = makeBtn('Set Rate', ()=>{
           inflation = clamp(Math.round(input.value * 1.0), 0, 20);
           messageArea.textContent = `Interest policy set. Inflation now ${inflation}%`;
           updateStatsDisplay();
@@ -431,16 +509,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
       }
       else if(evt.type === 'buttons'){
         evt.options.forEach(opt=>{
-          const b = document.createElement('button');
-          b.textContent = opt.text;
-          b.addEventListener('click', ()=>{
-            applyOption(opt);
-          });
+          const b = makeBtn(opt.text, ()=> applyOption(opt));
           buttonsArea.appendChild(b);
         });
       }
     });
-    // mini-game timer (gives less time)
     startTimer(20);
   }
 
@@ -453,11 +526,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   /* --- Next event logic (with mini-game chance) --- */
   function nextEvent(){
-    // safety: clear UI
     clearTimer();
     buttonsArea.innerHTML = '';
 
-    // Check end conditions immediately
     if(economy <= 0 || bank <= 0 || publicHappiness <= 0){
       gameOver(); return;
     }
@@ -465,7 +536,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
       gameOver(); return;
     }
 
-    // 30% chance to trigger a mini-game instead of a normal monthly event
     const willMini = Math.random() < 0.30;
     if(willMini){
       const me = miniEvents[Math.floor(Math.random()*miniEvents.length)];
@@ -473,11 +543,95 @@ document.addEventListener('DOMContentLoaded', ()=>{
       return;
     }
 
-    // Regular month event
     currentEventIndex = clamp(month-1, 0, events.length-1);
     const evt = events[currentEventIndex];
     renderEvent(evt);
   }
+
+  /* --- Leaderboard (localStorage) --- */
+  function loadLeaderboard(){
+    try{
+      const raw = localStorage.getItem(LB_KEY);
+      if(!raw) return [];
+      const arr = JSON.parse(raw);
+      if(Array.isArray(arr)) return arr;
+      return [];
+    }catch(e){
+      console.error('LB load error', e);
+      return [];
+    }
+  }
+  function saveLeaderboard(arr){
+    try{ localStorage.setItem(LB_KEY, JSON.stringify(arr)); } catch(e){ console.error(e); }
+  }
+
+  function addScoreEntry(name, score){
+    const arr = loadLeaderboard();
+    arr.push({name: (name || 'Anonymous').slice(0,30), score: Number(score||0), date: new Date().toISOString()});
+    arr.sort((a,b)=> b.score - a.score);
+    // keep top 50
+    saveLeaderboard(arr.slice(0,50));
+    renderLeaderboard();
+  }
+
+  function renderLeaderboard(){
+    const arr = loadLeaderboard();
+    leaderboardList.innerHTML = '';
+    if(arr.length === 0){
+      const no = document.createElement('div');
+      no.className = 'small';
+      no.textContent = 'No scores yet — be the first!';
+      leaderboardList.appendChild(no);
+      return;
+    }
+    arr.forEach((e,i)=>{
+      const ent = document.createElement('div');
+      ent.className = 'lb-entry fade-in-up';
+      ent.style.animationDelay = (i*40) + 'ms';
+      ent.innerHTML = `<div class="name">${i+1}. ${escapeHtml(e.name)}</div><div class="score">${e.score}</div>`;
+      leaderboardList.appendChild(ent);
+    });
+  }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  function openLeaderboard(){
+    leaderboardModal.classList.add('open');
+    leaderboardModal.setAttribute('aria-hidden','false');
+    renderLeaderboard();
+  }
+  function closeLeaderboard(){
+    leaderboardModal.classList.remove('open');
+    leaderboardModal.setAttribute('aria-hidden','true');
+  }
+  function clearLeaderboard(){
+    if(!confirm('Clear all leaderboard entries?')) return;
+    saveLeaderboard([]);
+    renderLeaderboard();
+  }
+
+  function openLeaderboardAndFill(score){
+    openLeaderboard();
+    lbNameInput.value = '';
+    lbNameInput.focus();
+    lbNameInput.dataset.autofillScore = score;
+  }
+
+  /* --- Hook leaderboard UI --- */
+  openLeaderboardBtn.addEventListener('click', ()=> {
+    openLeaderboard();
+  });
+  closeLeaderboardBtn.addEventListener('click', closeLeaderboard);
+  clearLeaderboardBtn.addEventListener('click', clearLeaderboard);
+
+  submitScoreBtn.addEventListener('click', ()=>{
+    const name = lbNameInput.value.trim() || 'Anonymous';
+    const scoreFromGame = Number(lbNameInput.dataset.autofillScore || computeScore());
+    addScoreEntry(name, scoreFromGame);
+    lbNameInput.value = '';
+    lbNameInput.dataset.autofillScore = '';
+    messageArea.textContent = 'Score submitted!';
+  });
 
   /* --- Initialize --- */
   function init(){
@@ -514,13 +668,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
       }
     });
 
+    // initial leaderboard rendering (preload)
+    renderLeaderboard();
+
     // start game
     updateStatsDisplay();
     nextEvent();
+
+    // keyboard: open leaderboard with "L"
+    document.addEventListener('keydown', (e)=> {
+      if(e.key === 'l' || e.key === 'L') openLeaderboard();
+    });
   }
 
-  /* Expose some helpers for testing in console (optional) */
-  window.__RBI = { restartGame, gameOver };
+  /* Expose some helpers for console (optional) */
+  window.__RBI = { restartGame, gameOver, addScoreEntry, loadLeaderboard };
 
   // run init
   init();
