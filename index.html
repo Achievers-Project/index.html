@@ -35,7 +35,7 @@
   .publicBar{background:linear-gradient(90deg,var(--danger),#ff8a8a)}
   .inflationBar{background:linear-gradient(90deg,var(--warning),#ffd95a);color:#111}
   .liquidityBar{background:linear-gradient(90deg,var(--info),#6fe3ff)}
-  .eventBox{background:#1b1b1c;padding:14px;border-radius:10px;min-height:80px;margin-bottom:12px;transition:opacity .25s, transform .15s}
+  .eventBox{background:#1b1b1c;padding:14px;border-radius:10px;min-height:80px;margin-bottom:12px;transition:opacity .25s, transform .15s;color:var(--text)}
   #buttonsArea{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
   button.btn{position:relative;overflow:hidden;border:0;padding:10px 14px;border-radius:10px;color:#04111a;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--btn-gradient-start),var(--btn-gradient-end));box-shadow:0 6px 18px rgba(106,90,205,0.18);transform:translateZ(0);transition:transform .15s, box-shadow .15s, opacity .12s;}
   button.btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 26px rgba(106,90,205,0.22)}
@@ -49,6 +49,8 @@
   #hariRapContainer{margin-top:10px;padding:12px;background:#2f0000;border-radius:8px;color:#fff;white-space:pre-line;line-height:1.4;overflow:hidden;max-height:0;opacity:0;transition:max-height .4s ease,opacity .3s ease}
   #footerDontBtn{padding:8px 10px;border-radius:9px;background:var(--danger);color:white;border:0;cursor:pointer}
   #footerDontBtn:hover{opacity:.95}
+
+  /* Leaderboard styles */
   #leaderboardModal{position:fixed;right:20px;top:20px;width:360px;max-height:80vh;background:linear-gradient(180deg,#0b0b0c,#121212);border-radius:12px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,0.6);transform:translateY(-20px) scale(.98);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.2,.9,.3,1),opacity .28s;overflow:auto;z-index:999}
   #leaderboardModal.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
   #leaderboardHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -67,6 +69,22 @@
   /* animations for modal buttons */
   .fade-in-up{opacity:0;transform:translateY(6px);animation:fadeUp .34s forwards}
   @keyframes fadeUp{to{opacity:1;transform:none}}
+
+  /* VFX for 'Don't click' button */
+  .vfx-root{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:1200;overflow:hidden}
+  .vfx-particle{
+    position:absolute;width:12px;height:12px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,0.2));
+    mix-blend-mode:screen;opacity:0.95;transform:translate3d(0,0,0);
+    animation:partMove 900ms cubic-bezier(.2,.8,.25,1) forwards;
+    box-shadow:0 6px 18px rgba(106,90,205,0.35), 0 0 18px rgba(255,200,80,0.08);
+  }
+  @keyframes partMove{
+    0%{transform:translateY(0) scale(1);opacity:1}
+    60%{opacity:1}
+    100%{transform:translateY(-160px) translateX(40px) scale(.3);opacity:0}
+  }
+
   /* Light theme override */
   body.light{
     --bg:#f4f6fb;
@@ -77,6 +95,13 @@
     --btn-gradient-start: #6a9fff;
     --btn-gradient-end: #7b61ff;
   }
+  /* Make event box readable in light mode */
+  body.light .eventBox{
+    background:#f3f6fb;
+    color:var(--text);
+  }
+  /* Make leaderboard input more visible in light mode */
+  body.light input#lbNameInput{background:#fff;color:var(--text);border:1px solid #ddd}
 
   /* Small screens */
   @media (max-width:520px){
@@ -165,11 +190,17 @@ No contribution? That’s your beat!
       <input id="lbNameInput" placeholder="Your name" style="flex:1;padding:8px;border-radius:8px;border:1px solid #222;background:transparent;color:var(--text)">
       <button id="submitScoreBtn" class="btn">Submit</button>
     </div>
-    <div class="small" style="margin-top:8px;color:var(--muted)">Scores saved locally in your browser (localStorage).</div>
+    <div class="small" style="margin-top:8px;color:var(--muted)">flex to other coons.</div>
   </aside>
 
 <script>
-/* === Single-file consolidated and corrected game logic with leaderboard + button animations === */
+/* === Consolidated game logic with requested changes: 
+   - game over message "Nice try"
+   - event box readable in light mode
+   - leaderboard messages changed
+   - 'Don't click' button VFX + rap reveal animation
+   - button ripple and animations preserved
+*/
 
 document.addEventListener('DOMContentLoaded', ()=>{
 
@@ -424,7 +455,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     } else {
       messageArea.textContent = "Game over — check stats and try again.";
     }
-    eventArea.textContent = "Session ended.";
+    // requested change: show "Nice try" in event area instead of "Session ended."
+    eventArea.textContent = "Nice try";
   }
 
   function restartGame(){
@@ -580,7 +612,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(arr.length === 0){
       const no = document.createElement('div');
       no.className = 'small';
-      no.textContent = 'No scores yet — be the first!';
+      // requested text change:
+      no.textContent = 'pls type ur name and saved locally in ur browser to flex to other coons';
       leaderboardList.appendChild(no);
       return;
     }
@@ -633,28 +666,86 @@ document.addEventListener('DOMContentLoaded', ()=>{
     messageArea.textContent = 'Score submitted!';
   });
 
+  /* --- 'Don't click' button VFX + rap reveal --- */
+  function spawnVFX(x, y){
+    // root container
+    let root = document.querySelector('.vfx-root');
+    if(!root){
+      root = document.createElement('div');
+      root.className = 'vfx-root';
+      document.body.appendChild(root);
+    }
+    const colors = ['#7b61ff','#5ad0ff','#ffd95a','#ff8a8a','#7cffb2'];
+    const count = 12;
+    for(let i=0;i<count;i++){
+      const p = document.createElement('div');
+      p.className = 'vfx-particle';
+      // start position around the click
+      const jitterX = (Math.random()-0.5) * 40;
+      const jitterY = (Math.random()-0.5) * 20;
+      p.style.left = (x + jitterX) + 'px';
+      p.style.top = (y + jitterY) + 'px';
+      const size = 8 + Math.round(Math.random()*18);
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.background = `radial-gradient(circle at 30% 30%, ${colors[i % colors.length]}, rgba(255,255,255,0.08))`;
+      // randomize animation duration/direction slightly
+      p.style.animationDuration = (800 + Math.round(Math.random()*400)) + 'ms';
+      p.style.transformOrigin = 'center';
+      root.appendChild(p);
+      // remove after animation
+      setTimeout(()=> p.remove(), 1400);
+    }
+    // subtle screen flash
+    const flash = document.createElement('div');
+    flash.style.position = 'fixed';
+    flash.style.left = 0; flash.style.top = 0; flash.style.width='100%'; flash.style.height='100%';
+    flash.style.background = 'radial-gradient(circle at ' + (x/window.innerWidth*100) + '% ' + (y/window.innerHeight*100) + '%, rgba(255,255,255,0.06), rgba(255,255,255,0))';
+    flash.style.pointerEvents = 'none';
+    flash.style.opacity = '0.9';
+    flash.style.transition = 'opacity .6s ease';
+    document.body.appendChild(flash);
+    setTimeout(()=> { flash.style.opacity = 0; setTimeout(()=> flash.remove(),700); }, 60);
+  }
+
+  // enhance rap toggle with VFX and button shake
+  let rapOpen = false;
+  footerDontBtn.addEventListener('click', (e)=>{
+    // spawn VFX at click position
+    const rect = footerDontBtn.getBoundingClientRect();
+    const x = e.clientX || rect.left + rect.width/2;
+    const y = rect.top + rect.height/2;
+    spawnVFX(x, y);
+
+    // playful button shake
+    footerDontBtn.animate([
+      { transform: 'translateX(0) rotate(0deg)' },
+      { transform: 'translateX(-6px) rotate(-6deg)' },
+      { transform: 'translateX(6px) rotate(6deg)' },
+      { transform: 'translateX(0) rotate(0deg)' }
+    ], { duration: 430, easing: 'cubic-bezier(.2,.8,.25,1)' });
+
+    rapOpen = !rapOpen;
+    if(rapOpen){
+      hariRap.style.maxHeight = '420px';
+      hariRap.style.opacity = 1;
+      hariRap.setAttribute('aria-hidden','false');
+      footerDontBtn.textContent = 'Close rap';
+      // small glow behind rap
+      hariRap.animate([{ boxShadow: '0 0 0px rgba(255,200,80,0)'},{ boxShadow: '0 20px 60px rgba(106,90,205,0.12)'}], { duration: 600, fill: 'forwards' });
+    } else {
+      hariRap.style.maxHeight = '0';
+      hariRap.style.opacity = 0;
+      hariRap.setAttribute('aria-hidden','true');
+      footerDontBtn.textContent = "Don't click";
+    }
+  });
+
   /* --- Initialize --- */
   function init(){
     // theme toggle
     themeToggle.addEventListener('change', ()=> {
       document.body.classList.toggle('light', themeToggle.checked);
-    });
-
-    // Hari rap toggle
-    let rapOpen = false;
-    footerDontBtn.addEventListener('click', ()=>{
-      rapOpen = !rapOpen;
-      if(rapOpen){
-        hariRap.style.maxHeight = '420px';
-        hariRap.style.opacity = 1;
-        hariRap.setAttribute('aria-hidden','false');
-        footerDontBtn.textContent = 'Close rap';
-      } else {
-        hariRap.style.maxHeight = '0';
-        hariRap.style.opacity = 0;
-        hariRap.setAttribute('aria-hidden','true');
-        footerDontBtn.textContent = "Don't click";
-      }
     });
 
     // tasteful title easter egg
@@ -677,7 +768,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     // keyboard: open leaderboard with "L"
     document.addEventListener('keydown', (e)=> {
-      if(e.key === 'l' || e.key === 'L') openLeaderboard();
+      if((e.key === 'l' || e.key === 'L') && !e.metaKey && !e.ctrlKey) openLeaderboard();
     });
   }
 
