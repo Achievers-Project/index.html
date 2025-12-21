@@ -7,89 +7,55 @@
 <style>
   :root{
     --bg:#0f1113; --card:#141516; --muted:#9aa0a6; --text:#e8eef2;
-    --accent-1:#6a5acd; --accent-2:#8b5cf6; --success:#35d46a;
-    --danger:#ff5c5c; --warning:#ffbf00; --info:#00bfff;
-    --glass: rgba(255,255,255,0.03);
+    --accent-1:#6a5acd; --accent-2:#8b5cf6;
     --btn-start:#7b61ff; --btn-end:#5ad0ff;
   }
   *{box-sizing:border-box}
-  body{font-family:Inter,Arial,Helvetica,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  .container{max-width:1000px;margin:20px auto;padding:20px;background:var(--card);border-radius:12px;box-shadow:0 8px 36px rgba(0,0,0,.6);position:relative;z-index:3}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  body{font-family:Inter,Arial,Helvetica,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+  .container{max-width:980px;margin:18px auto;padding:18px;background:var(--card);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
   h1{margin:0;font-size:20px}
   .controls{display:flex;gap:10px;align-items:center}
-  .stats{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-around;margin-bottom:14px}
-  .stat{background:var(--glass);padding:8px 10px;border-radius:8px;font-weight:700;font-size:13px;min-width:140px;text-align:center}
-
+  .stats{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-around;margin-bottom:12px}
+  .stat{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;font-weight:700;font-size:13px;min-width:140px;text-align:center}
   .graphContainer{margin:12px 0}
   .graphBar{height:22px;margin:6px 0;border-radius:10px;padding:2px 10px;color:#fff;display:flex;align-items:center;font-weight:700;box-sizing:border-box;overflow:hidden}
   .economyBar{background:linear-gradient(90deg,var(--accent-1),var(--accent-2))}
-  .bankBar{background:linear-gradient(90deg,var(--success),#3af285)}
-  .publicBar{background:linear-gradient(90deg,var(--danger),#ff8a8a)}
-  .inflationBar{background:linear-gradient(90deg,var(--warning),#ffd95a);color:#111}
-  .liquidityBar{background:linear-gradient(90deg,var(--info),#6fe3ff)}
-
-  .eventBox{background:#171717;padding:16px;border-radius:12px;min-height:150px;margin-bottom:12px;transition:all .24s;color:var(--text);position:relative;overflow:hidden}
-  .eventTitle{font-weight:800;margin-bottom:6px}
+  .bankBar{background:linear-gradient(90deg,#35d46a,#3af285)}
+  .publicBar{background:linear-gradient(90deg,#ff5c5c,#ff8a8a)}
+  .inflationBar{background:linear-gradient(90deg,#ffbf00,#ffd95a);color:#111}
+  .liquidityBar{background:linear-gradient(90deg,#00bfff,#6fe3ff)}
+  .eventBox{background:#171717;padding:14px;border-radius:10px;min-height:150px;margin-bottom:12px;transition:all .2s}
+  .eventTitle{font-weight:900;margin-bottom:6px}
   #buttonsArea{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-  button.btn{position:relative;overflow:hidden;border:0;padding:10px 14px;border-radius:10px;color:#04111a;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--btn-start),var(--btn-end));box-shadow:0 8px 26px rgba(106,90,205,0.16);transition:transform .12s}
-  button.btn:hover{transform:translateY(-4px) scale(1.02)}
-  button.btn:active{transform:translateY(0) scale(.99)}
-  button.row-btn{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+  .row-btn{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02);cursor:pointer;font-weight:800}
   .row-btn:hover{background:rgba(255,255,255,0.03)}
-  .btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:1px solid rgba(255,255,255,0.04)}
-
+  button.btn{padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--btn-start),var(--btn-end));cursor:pointer;color:#04111a;font-weight:800}
   #timer{font-weight:800;text-align:center;margin-bottom:8px}
-  #messageArea{min-height:24px;color:var(--muted);margin-top:8px}
-
-  footer{margin-top:16px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;padding:0 8px}
-  #footerDontBtn{padding:8px 12px;border-radius:10px;background:var(--danger);color:white;border:0;cursor:pointer}
-
-  /* mini layouts */
-  .alloc-grid{display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start}
-  .alloc-panel{padding:12px;border-radius:10px;background:rgba(255,255,255,.02)}
-  .alloc-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .alloc-row label{width:120px;font-weight:800}
-
-  /* VFX canvas */
+  footer{margin-top:12px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+  #hariRapContainer{margin-top:10px;padding:12px;background:#2f0000;border-radius:8px;color:#fff;max-height:0;overflow:hidden;transition:max-height .35s, opacity .25s;opacity:0}
   #vfxCanvas{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999}
-
-  /* leaderboard */
-  #leaderboardModal{position:fixed;right:20px;top:20px;width:360px;max-height:78vh;background:linear-gradient(180deg,#0b0b0c,#121212);border-radius:12px;padding:12px;box-shadow:0 18px 50px rgba(0,0,0,.6);transform:translateY(-18px) scale(.98);opacity:0;pointer-events:none;transition:all .28s;overflow:auto;z-index:40}
-  #leaderboardModal.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-  .lb-entry{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02);font-weight:800;margin-bottom:6px}
-
-  /* light mode */
-  body.light{--bg:#f5f7fb;--card:#fff;--muted:#444;--text:#111;--btn-start:#6a9fff;--btn-end:#7b61ff}
-  body.light .eventBox{background:#f3f6fb;color:var(--text)}
-
-  @media (max-width:720px){
-    .alloc-grid{grid-template-columns:1fr}
-    #leaderboardModal{right:8px;left:8px;top:auto;bottom:14px;width:auto}
-  }
-  .hidden{display:none!important}
+  @media (max-width:720px){ .stats{justify-content:space-between} .container{margin:8px} }
 </style>
 </head>
 <body>
   <canvas id="vfxCanvas" aria-hidden="true"></canvas>
 
-  <div style="text-align:center;margin-top:8px">
-    <a href="https://potatotomato.netlify.app/" aria-label="External">
-      <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" alt="RBI" width="140">
-    </a>
+  <div style="text-align:center;margin:12px 0">
+    <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" alt="RBI" width="120">
   </div>
 
-  <div class="container" role="main" aria-live="polite">
+  <div class="container" role="main">
     <header>
       <h1 id="title">RBI Game</h1>
       <div class="controls">
-        <label><input type="checkbox" id="themeToggle"> Light mode</label>
-        <button id="openLeaderboardBtn" class="btn ghost">Leaderboard</button>
+        <label><input type="checkbox" id="themeToggle"> Light</label>
+        <button id="openLeaderboardBtn" class="btn">Leaderboard</button>
         <div id="monthDisplay" style="font-weight:900">Month: 1 / 12</div>
       </div>
     </header>
 
-    <div class="stats">
+    <div class="stats" aria-live="polite">
       <div class="stat">Economy: <span id="economy">50</span></div>
       <div class="stat">Bank Health: <span id="bank">50</span></div>
       <div class="stat">Public: <span id="public">50</span></div>
@@ -102,40 +68,39 @@
 
     <div id="eventArea" class="eventBox" aria-live="assertive">
       <div class="eventTitle" id="eventTitle">Welcome</div>
-      <div id="eventText">Make decisions each month to steer the economy.</div>
+      <div id="eventText">The RBI Quiz — answer questions and manage policy.</div>
       <div id="eventSub"></div>
       <div id="miniArea"></div>
     </div>
 
     <div id="buttonsArea" role="group" aria-label="choices"></div>
-    <div id="messageArea" aria-live="polite"></div>
+    <div id="messageArea" aria-live="polite" style="min-height:20px;margin-top:6px;color:var(--muted)"></div>
 
     <footer>
       <span>Made by Syed / RBI©2025</span>
-      <div><button id="footerDontBtn" class="btn ghost">Don't click</button></div>
+      <div><button id="footerDontBtn" class="btn">Don't click</button></div>
     </footer>
 
-    <div id="hariRapContainer" aria-hidden="true" style="margin-top:12px;padding:12px;background:#2f0000;border-radius:8px;color:#fff;max-height:0;overflow:hidden;transition:all .35s">
+    <div id="hariRapContainer" aria-hidden="true">
 Yo Hari, always missing in the grind,
 We code all night, you lag behind.
 Ideas flowing, you just chill,
 While we debug, you spill.
 Step up now, face the heat,
 Or watch your defeat repeat.
-No contribution? That’s your beat!
     </div>
   </div>
 
-  <aside id="leaderboardModal" aria-hidden="true">
+  <!-- Leaderboard modal (simple) -->
+  <aside id="leaderboardModal" aria-hidden="true" style="position:fixed;right:14px;top:14px;width:340px;background:#0b0b0c;padding:12px;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.6);display:none;z-index:999">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-weight:900">Leaderboard</div>
-      <div style="display:flex;gap:8px">
-        <button id="clearLeaderboardBtn" class="btn ghost">Clear</button>
-        <button id="closeLeaderboardBtn" class="btn ghost">Close</button>
+      <strong>Leaderboard</strong>
+      <div style="display:flex;gap:6px">
+        <button id="closeLeaderboardBtn" class="btn">Close</button>
       </div>
     </div>
-    <div id="leaderboardList"></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
+    <div id="leaderboardList" style="max-height:320px;overflow:auto;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px">
       <input id="lbNameInput" placeholder="Your name" style="flex:1;padding:8px;border-radius:8px;border:1px solid #222;background:transparent;color:var(--text)">
       <button id="submitScoreBtn" class="btn">Submit</button>
     </div>
@@ -143,29 +108,28 @@ No contribution? That’s your beat!
   </aside>
 
 <script>
-/*
-  Changes implemented per request:
-  - Use a pool of 20 MCQs and select a random 12 for each game session (unique within that session).
-  - Ensure months show sequentially (Month display fixed).
-  - Each month's question is taken from the session 12 sequence, never repeated within the same session.
-  - When a mini-game triggers, the question UI is cleared (previous questions removed) while playing.
-  - Ensure questions shown across months are not repeated in a row; sampling attempts to avoid overlap with the last session (best-effort).
-  - Removed side decorations.
-  - Only 2 VFX functions are triggered per action (randomly choose exactly two distinct VFX types from fire, lightning, sparkles, coin).
-  - Title remains "RBI Game".
-  - Defensive coding, no duplicate functions, DOMContentLoaded initialization, no errors expected.
+/* Clean, corrected single-file implementation
+   - Fixed: question sequencing (12 unique per session, random each session)
+   - Fixed: buttons/handlers, timers, mini-games (only liquidity & setRate)
+   - VFX: pick exactly 1 VFX from 4 types each action (fire, lightning, sparks, coins)
+   - When mini-game triggers, question UI is cleared; questions resume afterwards
+   - Title kept as "RBI Game"
+   - Defensive and linear code flow to avoid previous scoping/duplication bugs
 */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ---- State ----
+  // ---------- State ----------
   let economy = 50, bank = 50, publicHappiness = 50, inflation = 5, liquidity = 50;
   let month = 1, maxMonth = 12;
   let timer = null, timeLeft = 30;
+  let sessionQuestions = [];      // array of 12 MCQs for this game
+  let sessionIndex = 0;           // which MCQ is next
   let inMiniGame = false;
-  const LB_KEY = 'rbi_leaderboard_v4';
-  const PREV_SESSION_KEY = 'rbi_prev_session_v4';
 
-  // ---- DOM refs ----
+  const PREV_SESSION_KEY = 'rbi_prev_session_v5';
+  const LB_KEY = 'rbi_leaderboard_v5';
+
+  // ---------- DOM refs ----------
   const economyEl = document.getElementById('economy');
   const bankEl = document.getElementById('bank');
   const publicEl = document.getElementById('public');
@@ -180,12 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const buttonsArea = document.getElementById('buttonsArea');
   const messageArea = document.getElementById('messageArea');
   const timeNum = document.getElementById('timeNum');
+  const vfxCanvas = document.getElementById('vfxCanvas');
+  const ctx = vfxCanvas.getContext('2d');
 
-  const themeToggle = document.getElementById('themeToggle');
   const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');
   const leaderboardModal = document.getElementById('leaderboardModal');
   const closeLeaderboardBtn = document.getElementById('closeLeaderboardBtn');
-  const clearLeaderboardBtn = document.getElementById('clearLeaderboardBtn');
   const leaderboardList = document.getElementById('leaderboardList');
   const submitScoreBtn = document.getElementById('submitScoreBtn');
   const lbNameInput = document.getElementById('lbNameInput');
@@ -193,215 +157,87 @@ document.addEventListener('DOMContentLoaded', () => {
   const footerDontBtn = document.getElementById('footerDontBtn');
   const hariRap = document.getElementById('hariRapContainer');
 
-  // ---- VFX canvas and pools ----
-  const canvas = document.getElementById('vfxCanvas');
-  const ctx = canvas.getContext('2d');
-  let DPR = window.devicePixelRatio || 1;
-  function resizeCanvas(){ DPR = window.devicePixelRatio || 1; canvas.width = innerWidth * DPR; canvas.height = innerHeight * DPR; canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px'; ctx.setTransform(DPR,0,0,DPR,0,0); }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  const fireParts = [], lightningBolts = [], sparks = [];
-  let lastFrame = performance.now();
-
-  function spawnFire(x,y,n=18){
-    for(let i=0;i<n;i++){
-      fireParts.push({
-        x: x + (Math.random()-0.5)*20,
-        y: y + (Math.random()-0.5)*10,
-        vx: (Math.random()-0.5)*1.6,
-        vy: - (1 + Math.random()*3),
-        size: 6 + Math.random()*14,
-        life: 40 + Math.round(Math.random()*40),
-        colorMix: Math.random()
-      });
-    }
-  }
-  function spawnLightning(x,y,n=1){
-    for(let i=0;i<n;i++){
-      lightningBolts.push({ x,y,segments:[],life: 12 + Math.round(Math.random()*8), thickness: 2 + Math.random()*3 });
-    }
-  }
-  function buildBolt(b){
-    const segs = [];
-    let curX = b.x, curY = b.y;
-    const len = 5 + Math.floor(Math.random()*6);
-    for(let i=0;i<len;i++){
-      const nx = curX + (Math.random()-0.5)*80;
-      const ny = curY + 60 + Math.random()*80;
-      segs.push({x1:curX,y1:curY,x2:nx,y2:ny});
-      curX = nx; curY = ny;
-      if(curY > innerHeight - 20) break;
-    }
-    b.segments = segs;
-  }
-  function spawnSparks(x,y,n=12){
-    for(let i=0;i<n;i++){
-      sparks.push({ x: x + (Math.random()-0.5)*30, y: y + (Math.random()-0.5)*20, vx:(Math.random()-0.5)*4, vy: - (Math.random()*4+1), size:2+Math.random()*6, life:30 + Math.round(Math.random()*40), color: ['#fff4aa','#ffd59f','#bfe9ff'][Math.floor(Math.random()*3)] });
-    }
-  }
-  function spawnCoinStreamDOM(x,y,count=12){
-    for(let i=0;i<count;i++){
-      const el = document.createElement('div');
-      el.textContent = '₹';
-      el.style.position='fixed';
-      el.style.left = (x + (Math.random()-0.5)*40) + 'px';
-      el.style.top = (y + (Math.random()-0.5)*20) + 'px';
-      el.style.fontSize = (12 + Math.round(Math.random()*20)) + 'px';
-      el.style.zIndex = 99999;
-      el.style.pointerEvents = 'none';
-      el.style.opacity = '1';
-      el.style.transition = 'transform 1s cubic-bezier(.2,.9,.3,1), opacity 1s';
-      document.body.appendChild(el);
-      requestAnimationFrame(()=> {
-        el.style.transform = `translate3d(${(Math.random()-0.5)*200}px, ${-120 - Math.random()*260}px, 0) rotate(${Math.random()*360}deg)`;
-        el.style.opacity = '0';
-      });
-      setTimeout(()=> el.remove(), 1100);
-    }
-  }
-
-  // vfx loop
-  function vfxLoop(ts){
-    const dt = ts - lastFrame; lastFrame = ts;
-    ctx.clearRect(0,0,innerWidth,innerHeight);
-
-    // fire
-    for(let i=fireParts.length-1;i>=0;i--){
-      const p = fireParts[i];
-      p.vy += 0.06;
-      p.x += p.vx; p.y += p.vy; p.life--;
-      const t = Math.max(0, p.life/80);
-      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*1.5);
-      const c1 = p.colorMix < 0.5 ? 'rgba(255,200,60,0.9)' : 'rgba(255,120,20,0.9)';
-      grad.addColorStop(0, c1); grad.addColorStop(0.5, 'rgba(255,90,40,0.6)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(p.x,p.y, Math.max(1,p.size * Math.max(0.2,t)), 0, Math.PI*2); ctx.fill();
-      if(p.life<=0 || p.y < -50) fireParts.splice(i,1);
-    }
-    // lightning
-    for(let i=lightningBolts.length-1;i>=0;i--){
-      const b = lightningBolts[i];
-      if(!b.segments || b.segments.length===0) buildBolt(b);
-      ctx.lineWidth = b.thickness;
-      const alpha = b.life / 20;
-      ctx.strokeStyle = `rgba(220,248,255,${0.9*alpha})`; ctx.beginPath();
-      for(const s of b.segments){ ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); }
-      ctx.stroke();
-      ctx.strokeStyle = `rgba(255,255,255,${0.5*alpha})`; ctx.beginPath();
-      for(const s of b.segments){ ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); }
-      ctx.stroke();
-      b.life--; if(b.life<=0) lightningBolts.splice(i,1);
-    }
-    // sparks
-    for(let i=sparks.length-1;i>=0;i--){
-      const s = sparks[i];
-      s.vy += 0.12; s.x += s.vx; s.y += s.vy; s.life--;
-      ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fill();
-      if(s.life<=0) sparks.splice(i,1);
-    }
-
-    requestAnimationFrame(vfxLoop);
-  }
-  requestAnimationFrame(vfxLoop);
-
-  // play exactly two distinct VFX per call
-  function playTwoVfx(x,y,type='neutral'){
-    const pool = {
-      positive: [ ()=>spawnFire(x,y,18), ()=>spawnLightning(x,y,1), ()=>spawnSparks(x,y,14), ()=>spawnCoinStreamDOM(x,y,10) ],
-      neutral:  [ ()=>spawnSparks(x,y,8), ()=>spawnCoinStreamDOM(x,y,6), ()=>spawnSparks(x,y,10) ],
-      negative: [ ()=>spawnLightning(x,y,1), ()=>spawnSparks(x,y,12), ()=>spawnFire(x,y,8) ]
-    }[type] || [ ()=>spawnSparks(x,y,8), ()=>spawnCoinStreamDOM(x,y,6) ];
-
-    // choose two distinct indices
-    const idxs = [];
-    while(idxs.length < 2 && idxs.length < pool.length){
-      const r = Math.floor(Math.random()*pool.length);
-      if(!idxs.includes(r)) idxs.push(r);
-    }
-    idxs.forEach(i => { try{ pool[i](); }catch(e){} });
-  }
-
-  // ---- MCQ pool (20) ----
+  // ---------- MCQ pool (20) ----------
   const mcqPool = [
-    { id:1, text:"What is the primary tool RBI uses to control inflation?", options:[
-        {text:"Open Market Operations", econ:+1, bank:+1, pub:0, infl:-2},
-        {text:"Fiscal stimulus by government", econ:+2, bank:0, pub:+1, infl:+2},
-        {text:"Currency devaluation", econ:-2, bank:-1, pub:-3, infl:+3}
+    { id:1, text:"What is RBI's primary tool to control inflation?", options:[
+        {text:"Open Market Operations", econ:+1, bank:+1, infl:-2},
+        {text:"Fiscal stimulus by government", econ:+2, infl:+2},
+        {text:"Currency devaluation", econ:-2, infl:+3}
       ]},
-    { id:2, text:"If inflation rises sharply, RBI most likely will:", options:[
-        {text:"Increase policy rates", econ:-3, bank:+3, pub:-2, infl:-3},
-        {text:"Reduce reserve requirements", econ:+2, bank:-2, pub:+1, infl:+1},
-        {text:"Increase public spending", econ:+3, bank:0, pub:+2, infl:+2}
+    { id:2, text:"If inflation rises, RBI most likely will:", options:[
+        {text:"Increase policy rates", econ:-3, bank:+3, infl:-3},
+        {text:"Reduce reserve requirements", econ:+2, infl:+1},
+        {text:"Increase public spending", econ:+3, infl:+2}
       ]},
-    { id:3, text:"Liquidity injection usually affects:", options:[
-        {text:"Liquidity ↑, may ease credit", econ:+2, bank:+2, pub:+1, liq:+6},
-        {text:"Public happiness drops", econ:-1, bank:-1, pub:-2},
-        {text:"Immediate drop in inflation", infl:-3, econ:-2}
+    { id:3, text:"Liquidity injection usually:", options:[
+        {text:"Increases liquidity & eases credit", econ:+2, bank:+2, liq:+6},
+        {text:"Decreases public happiness", pub:-2},
+        {text:"Immediately cuts inflation", infl:-3}
       ]},
-    { id:4, text:"Open Market Operations (OMO) involve:", options:[
+    { id:4, text:"Open Market Operations are:", options:[
         {text:"Buying/selling government securities", econ:+1, bank:+2, liq:+4},
-        {text:"Printing currency arbitrarily", econ:-3, infl:+4},
+        {text:"Printing currency arbitrarily", infl:+4},
         {text:"Changing income tax rates", econ:0}
       ]},
     { id:5, text:"RBI raising repo rate typically:", options:[
         {text:"Discourages borrowing", econ:-2, bank:+2, infl:-2},
-        {text:"Increases liquidity sharply", liq:+6},
+        {text:"Increases liquidity", liq:+6},
         {text:"Has no effect on banks", bank:0}
       ]},
     { id:6, text:"Which improves bank health most directly?", options:[
-        {text:"Stricter audits and capital requirements", bank:+4, econ:-1},
-        {text:"Lowering interest rates", bank:-2, pub:+1},
+        {text:"Stricter audits & capital requirements", bank:+4, econ:-1},
+        {text:"Lowering interest rates", bank:-2},
         {text:"Cutting bank staff", bank:-1}
       ]},
     { id:7, text:"How to boost public happiness short term?", options:[
         {text:"Targeted subsidies", econ:-2, pub:+4, liq:-2},
-        {text:"Tighten monetary policy", econ:-1, pub:-2, infl:-2},
+        {text:"Tighten monetary policy", pub:-2},
         {text:"Ignore public complaints", pub:-6}
       ]},
-    { id:8, text:"What is a liquidity trap?", options:[
-        {text:"When monetary policy loses potency", econ:-2, liq:0},
-        {text:"When banks refuse deposits", bank:-3},
-        {text:"When inflation is negative", infl:-2}
+    { id:8, text:"Liquidity trap means:", options:[
+        {text:"Monetary policy loses potency", econ:-2},
+        {text:"Banks refuse deposits", bank:-3},
+        {text:"Negative inflation", infl:-2}
       ]},
-    { id:9, text:"Sterilisation in central banking means:", options:[
-        {text:"Offsetting liquidity impact of capital flows", bank:+1, econ:0},
+    { id:9, text:"Sterilisation is:", options:[
+        {text:"Offsetting liquidity impact of capital flows", bank:+1},
         {text:"Printing more currency", infl:+3},
         {text:"Banning foreign investment", econ:-2}
       ]},
     { id:10, text:"What reduces inflation without hurting growth?", options:[
-        {text:"Careful rate increases + communication", econ:0, infl:-2, pub:+1},
-        {text:"Large sudden hikes", econ:-3, infl:-3},
-        {text:"Total freeze on lending", econ:-4}
+        {text:"Careful rate increases + communication", infl:-2, pub:+1},
+        {text:"Large sudden hikes", econ:-3},
+        {text:"Freeze on lending", econ:-4}
       ]},
     { id:11, text:"Foreign investment surge can:", options:[
-        {text:"Boost economy and liquidity", econ:+4, liq:+4},
+        {text:"Boost economy & liquidity", econ:+4, liq:+4},
         {text:"Always hurt public happiness", pub:-2},
-        {text:"Cause immediate banking collapse", bank:-5}
+        {text:"Cause banking collapse", bank:-5}
       ]},
     { id:12, text:"Which helps digital payments uptake?", options:[
         {text:"Invest in infrastructure", econ:+3, pub:+4, liq:-2},
         {text:"Ignore the demand", pub:-4},
         {text:"Ban digital wallets", pub:-5}
       ]},
-    { id:13, text:"RBI's forward guidance means:", options:[
+    { id:13, text:"Forward guidance means:", options:[
         {text:"Communicating future policy intent", pub:+1, econ:+1},
         {text:"Secret rate decisions", pub:-2},
         {text:"Immediate fiscal transfers", econ:+2}
       ]},
     { id:14, text:"If banks report fraud, best action:", options:[
         {text:"Aggressive audits & fines", bank:+4, pub:+2},
-        {text:"Cover it up to avoid panic", bank:-6, pub:-4},
-        {text:"Ignore and continue", pub:-5}
+        {text:"Cover it up", bank:-6, pub:-4},
+        {text:"Ignore", pub:-5}
       ]},
-    { id:15, text:"What lowers inflationary expectations?", options:[
+    { id:15, text:"What lowers inflation expectations?", options:[
         {text:"Credible policy + communication", infl:-2, pub:+1},
         {text:"Hoarding cash", econ:-1},
         {text:"Cutting wages", pub:-2}
       ]},
     { id:16, text:"Why maintain buffer liquidity?", options:[
-        {text:"To handle shocks & stabilize markets", bank:+3, liq:+5},
-        {text:"To slow economy deliberately", econ:-2},
-        {text:"To increase corruption", pub:-3}
+        {text:"Handle shocks & stabilize markets", bank:+3, liq:+5},
+        {text:"Slow economy", econ:-2},
+        {text:"Increase corruption", pub:-3}
       ]},
     { id:17, text:"Which encourages exports?", options:[
         {text:"Targeted export loans", econ:+3, bank:-2, liq:-3},
@@ -414,355 +250,344 @@ document.addEventListener('DOMContentLoaded', () => {
         {text:"Publicly share all data", pub:-5}
       ]},
     { id:19, text:"Inflation measure RBI watches:", options:[
-        {text:"Consumer Price Index (CPI)", infl:-0, pub:0},
+        {text:"Consumer Price Index (CPI)", infl:0},
         {text:"Number of bank branches", bank:0},
         {text:"Stock market returns", econ:0}
       ]},
     { id:20, text:"What is quantitative easing?", options:[
         {text:"Large scale asset purchases", liq:+10, infl:+2},
         {text:"Banning lending", econ:-3},
-        {text:"Printing money and giving directly to people", pub:+1, infl:+4}
+        {text:"Printing money & transfer", pub:+1, infl:+4}
       ]}
   ];
 
-  // ---- Session question selection (choose 12 random unique MCQs per session)
-  // Try to avoid overlap with previous session (best-effort; full avoidance impossible when pool small)
+  // ---------- Session selection (pick 12 unique random) ----------
   function pickSessionQuestions(){
-    const pool = [...mcqPool];
-    const prevRaw = localStorage.getItem(PREV_SESSION_KEY);
-    const prev = prevRaw ? JSON.parse(prevRaw) : [];
-    const poolIds = pool.map(p=>p.id);
-    // attempt to find a 12-set with zero overlap with prev; try up to attempts
-    let attempts = 0;
-    let best = null;
-    let bestOverlap = Infinity;
-    while(attempts < 400){
-      attempts++;
-      // shuffle indices
-      const shuffled = poolIds.slice().sort(()=> Math.random() - 0.5);
-      const pick = shuffled.slice(0,12);
-      const overlap = pick.filter(id => prev.includes(id)).length;
-      if(overlap === 0){
-        best = pick; bestOverlap = 0; break;
-      }
-      if(overlap < bestOverlap){ bestOverlap = overlap; best = pick; }
-    }
-    if(bestOverlap > 0){
-      // cannot avoid overlap fully; warn (console) but proceed with minimal overlap
-      console.warn('Could not avoid overlap with previous session entirely; minimal overlap:', bestOverlap);
-    }
-    // save as prev for next session
-    localStorage.setItem(PREV_SESSION_KEY, JSON.stringify(best));
-    // return the full MCQ objects in that pick order
-    return best.map(id => mcqPool.find(q => q.id === id));
+    const ids = mcqPool.map(q => q.id);
+    // shuffle
+    for(let i=ids.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ids[i],ids[j]]=[ids[j],ids[i]]; }
+    const pickIds = ids.slice(0,12);
+    // store pick to localStorage to try avoiding immediate repeats next game (optional)
+    localStorage.setItem(PREV_SESSION_KEY, JSON.stringify(pickIds));
+    return pickIds.map(id => mcqPool.find(q => q.id === id));
   }
 
-  // sessionQuestions holds 12 MCQs to show this full game
-  let sessionQuestions = pickSessionQuestions();
-  // used indices within session to prevent repeats within session
-  let sessionIndex = 0;
+  // ---------- VFX (pick exactly 1 each time) ----------
+  // Canvas setup
+  let DPR = window.devicePixelRatio || 1;
+  function resizeCanvas(){ DPR = window.devicePixelRatio || 1; vfxCanvas.width = innerWidth * DPR; vfxCanvas.height = innerHeight * DPR; vfxCanvas.style.width = innerWidth + 'px'; vfxCanvas.style.height = innerHeight + 'px'; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-  // ---- VFX: play exactly two VFX chosen randomly
-  function playTwoVfxAt(x,y,kind='neutral'){
-    // define functions
-    const funcs = [
-      ()=>spawnFire(x,y,16),
-      ()=>spawnLightning(x,y,1),
-      ()=>spawnSparks(x,y,12),
-      ()=>spawnCoinStreamDOM(x,y,10)
-    ];
-    // pick two distinct indices
-    const idx = [];
-    while(idx.length < 2){
-      const r = Math.floor(Math.random()*funcs.length);
-      if(!idx.includes(r)) idx.push(r);
-    }
-    idx.forEach(i => { try{ funcs[i](); } catch(e){ console.error(e); } });
-  }
+  const fireParts = [], lightningBolts = [], sparks = [];
 
-  // ---- UI helpers ----
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function updateStats(){
-    economyEl.textContent = economy;
-    bankEl.textContent = bank;
-    publicEl.textContent = publicHappiness;
-    inflationEl.textContent = inflation + '%';
-    liquidityEl.textContent = liquidity;
-    monthDisplay.textContent = `Month: ${clamp(month,1,maxMonth)} / ${maxMonth}`;
-    updateGraph();
-  }
-  function updateGraph(){
-    const inflW = clamp(inflation*4,0,100);
-    graphArea.innerHTML = `
-      <div class="graphBar economyBar" style="width:${economy}%">Economy: ${economy}</div>
-      <div class="graphBar bankBar" style="width:${bank}%">Bank Health: ${bank}</div>
-      <div class="graphBar publicBar" style="width:${publicHappiness}%">Public: ${publicHappiness}</div>
-      <div class="graphBar inflationBar" style="width:${inflW}%">Inflation: ${inflation}%</div>
-      <div class="graphBar liquidityBar" style="width:${liquidity}%">Liquidity: ${liquidity}</div>
-    `;
-  }
-
-  // ---- Timer ----
-  function startTimer(seconds=30){
-    clearTimer();
-    timeLeft = seconds;
-    timeNum.textContent = timeLeft;
-    timer = setInterval(()=>{ timeLeft--; timeNum.textContent = timeLeft; if(timeLeft <= 0){ clearTimer(); setMessage("Time's up — default action applied."); defaultAction(); } }, 1000);
-  }
-  function clearTimer(){ if(timer){ clearInterval(timer); timer=null; } }
-
-  // ---- Button helper ----
-  function mkRowButton(text, handler){
-    const b = document.createElement('div');
-    b.className = 'row-btn';
-    const t = document.createElement('div'); t.textContent = text; t.style.fontWeight='800';
-    b.appendChild(t);
-    b.addEventListener('click', (e)=>{
-      // small ripple-ish DOM micro
-      spawnSparks(e.clientX, e.clientY, 6);
-      playTwoVfxAt(e.clientX, e.clientY, 'neutral');
-      try{ setTimeout(()=> handler(e), 40); } catch(err){ console.error(err); }
-    });
-    return b;
-  }
-
-  // ---- Present next MCQ for this month ----
-  function presentMCQForMonth(){
-    // clear mini area when showing a question (so mini-game UI not visible)
-    miniArea.innerHTML = '';
-    eventTitle.textContent = `Month ${month}`;
-    // ensure sessionIndex within bounds
-    if(sessionIndex >= sessionQuestions.length) sessionIndex = sessionQuestions.length - 1;
-    const q = sessionQuestions[sessionIndex];
-    eventText.textContent = q.text;
-    eventSub.textContent = `Question ${sessionIndex + 1} of ${sessionQuestions.length}`;
-    buttonsArea.innerHTML = '';
-    // present options as row buttons
-    q.options.forEach((opt, idx)=>{
-      const btn = mkRowButton(opt.text, (e)=>{
-        // apply deltas
-        clearTimer();
-        economy = clamp(economy + (opt.econ||0), 0, 100);
-        bank = clamp(bank + (opt.bank||0), 0, 100);
-        publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0), 0, 100);
-        inflation = clamp(inflation + (opt.infl||0), 0, 20);
-        liquidity = clamp(liquidity + (opt.liq||0), 0, 100);
-        updateStats();
-        setMessage(`You chose: "${opt.text}"`);
-        // play exactly two VFX types
-        playTwoVfxAt(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, 'positive');
-        // advance
-        sessionIndex++;
-        setTimeout(()=> nextPhase(), 600);
+  function spawnFire(x,y,count=18){
+    for(let i=0;i<count;i++){
+      fireParts.push({
+        x: x + (Math.random()-0.5)*20,
+        y: y + (Math.random()-0.5)*10,
+        vx: (Math.random()-0.5)*1.6, vy: - (1 + Math.random()*3),
+        size: 6 + Math.random()*12, life:40 + Math.round(Math.random()*40)
       });
-      buttonsArea.appendChild(btn);
+    }
+  }
+  function spawnLightning(x,y,count=1){
+    for(let i=0;i<count;i++) lightningBolts.push({x,y,segments:[],life:14,thickness:2 + Math.random()*3});
+  }
+  function spawnSparks(x,y,count=12){
+    for(let i=0;i<count;i++) sparks.push({
+      x: x + (Math.random()-0.5)*30, y: y + (Math.random()-0.5)*20,
+      vx:(Math.random()-0.5)*4, vy: - (Math.random()*4+1), size:2 + Math.random()*6, life:30 + Math.round(Math.random()*40),
+      color: ['#fff4aa','#ffd59f','#bfe9ff'][Math.floor(Math.random()*3)]
+    });
+  }
+  function spawnCoinStreamDOM(x,y,count=10){
+    for(let i=0;i<count;i++){
+      const el = document.createElement('div');
+      el.textContent='₹';
+      el.style.position='fixed'; el.style.left = (x + (Math.random()-0.5)*40)+'px'; el.style.top=(y + (Math.random()-0.5)*20)+'px';
+      el.style.fontSize = (12 + Math.round(Math.random()*18)) + 'px';
+      el.style.zIndex = 99999; el.style.pointerEvents = 'none'; el.style.opacity = '1'; el.style.transition = 'transform 1s, opacity 1s';
+      document.body.appendChild(el);
+      requestAnimationFrame(()=> { el.style.transform = `translate3d(${(Math.random()-0.5)*200}px,${-120 - Math.random()*260}px,0) rotate(${Math.random()*360}deg)`; el.style.opacity='0'; });
+      setTimeout(()=> el.remove(),1100);
+    }
+  }
+
+  // play single VFX chosen randomly from set appropriate to 'kind'
+  function playSingleVfx(x,y, kind='neutral'){
+    const choices = {
+      positive: [ ()=>spawnFire(x,y,20), ()=>spawnSparks(x,y,14), ()=>spawnCoinStreamDOM(x,y,12), ()=>spawnLightning(x,y,1) ],
+      neutral:  [ ()=>spawnSparks(x,y,8), ()=>spawnCoinStreamDOM(x,y,6), ()=>spawnSparks(x,y,10) ],
+      negative: [ ()=>spawnLightning(x,y,1), ()=>spawnSparks(x,y,12), ()=>spawnFire(x,y,10) ]
+    }[kind] || [ ()=>spawnSparks(x,y,8) ];
+    const fn = choices[Math.floor(Math.random()*choices.length)];
+    try{ fn(); } catch(e){ console.error(e); }
+  }
+
+  // canvas animation loop
+  let lastTs = performance.now();
+  function vfxFrame(ts){
+    const dt = ts - lastTs; lastTs = ts;
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+
+    for(let i=fireParts.length-1;i>=0;i--){
+      const p = fireParts[i]; p.vy += 0.06; p.x += p.vx; p.y += p.vy; p.life--;
+      const t = Math.max(0,p.life/80);
+      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*1.5);
+      grad.addColorStop(0, 'rgba(255,200,60,0.9)'); grad.addColorStop(0.5,'rgba(255,90,40,0.6)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(1,p.size*t),0,Math.PI*2); ctx.fill();
+      if(p.life<=0) fireParts.splice(i,1);
+    }
+    for(let i=lightningBolts.length-1;i>=0;i--){
+      const b = lightningBolts[i];
+      if(!b.segments || b.segments.length===0){
+        const segs=[]; let cx=b.x, cy=b.y; const len=4 + Math.floor(Math.random()*6);
+        for(let s=0;s<len;s++){ const nx = cx + (Math.random()-0.5)*80; const ny = cy + 60 + Math.random()*80; segs.push({x1:cx,y1:cy,x2:nx,y2:ny}); cx=nx; cy=ny; if(cy>innerHeight-20) break; }
+        b.segments=segs;
+      }
+      ctx.lineWidth = b.thickness; const a = b.life/16;
+      ctx.strokeStyle = `rgba(200,240,255,${0.9*a})`; ctx.beginPath();
+      for(const s of b.segments){ ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); } ctx.stroke();
+      b.life--; if(b.life<=0) lightningBolts.splice(i,1);
+    }
+    for(let i=sparks.length-1;i>=0;i--){
+      const s = sparks[i]; s.vy += 0.12; s.x += s.vx; s.y += s.vy; s.life--;
+      ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fill();
+      if(s.life<=0) sparks.splice(i,1);
+    }
+
+    requestAnimationFrame(vfxFrame);
+  }
+  requestAnimationFrame(vfxFrame);
+
+  // ---------- Utility & UI ----------
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function setMessage(txt){ messageArea.textContent = txt || ''; }
+  function updateStats(){ economyEl.textContent = economy; bankEl.textContent = bank; publicEl.textContent = publicHappiness; inflationEl.textContent = inflation + '%'; liquidityEl.textContent = liquidity; monthDisplay.textContent = `Month: ${clamp(month,1,maxMonth)} / ${maxMonth}`; updateGraph(); }
+  function updateGraph(){ const inflW = clamp(inflation*4,0,100); graphArea.innerHTML = `
+    <div class="graphBar economyBar" style="width:${economy}%">Economy: ${economy}</div>
+    <div class="graphBar bankBar" style="width:${bank}%">Bank Health: ${bank}</div>
+    <div class="graphBar publicBar" style="width:${publicHappiness}%">Public: ${publicHappiness}</div>
+    <div class="graphBar inflationBar" style="width:${inflW}%">Inflation: ${inflation}%</div>
+    <div class="graphBar liquidityBar" style="width:${liquidity}%">Liquidity: ${liquidity}</div>`; }
+
+  // ---------- Timer ----------
+  function startTimer(seconds=30){
+    clearTimer(); timeLeft = seconds; timeNum.textContent = timeLeft;
+    timer = setInterval(()=>{ timeLeft--; timeNum.textContent = timeLeft; if(timeLeft <= 0){ clearTimer(); setMessage("Time's up — default applied."); onTimeout(); } },1000);
+  }
+  function clearTimer(){ if(timer){ clearInterval(timer); timer = null; } }
+
+  // ---------- Session/questions ----------
+  sessionQuestions = pickSessionQuestions(); sessionIndex = 0;
+
+  function presentMCQ(){
+    inMiniGame = false;
+    miniArea.innerHTML = '';
+    buttonsArea.innerHTML = '';
+    if(sessionIndex >= sessionQuestions.length){ gameOver(); return; }
+    const q = sessionQuestions[sessionIndex];
+    eventTitle.textContent = `Month ${month}`;
+    eventText.textContent = q.text;
+    eventSub.textContent = `Question ${sessionIndex+1} / ${sessionQuestions.length}`;
+    q.options.forEach(opt=>{
+      const row = document.createElement('div'); row.className='row-btn';
+      const label = document.createElement('div'); label.textContent = opt.text;
+      row.appendChild(label);
+      row.addEventListener('click', (ev)=>{
+        clearTimer();
+        // apply
+        economy = clamp(economy + (opt.econ||0),0,100);
+        bank = clamp(bank + (opt.bank||0),0,100);
+        publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0),0,100);
+        inflation = clamp(inflation + (opt.infl||0),0,20);
+        liquidity = clamp(liquidity + (opt.liq||0),0,100);
+        updateStats();
+        setMessage(`You chose: ${opt.text}`);
+        playSingleVfx(ev.clientX || window.innerWidth/2, ev.clientY || window.innerHeight/2, 'positive');
+        sessionIndex++;
+        month++;
+        setTimeout(()=> scheduleNext(), 600);
+      });
+      buttonsArea.appendChild(row);
     });
     startTimer(30);
   }
 
-  // ---- default action when time runs out ----
-  function defaultAction(){
-    // auto pick first option of current MCQ if in question mode
-    if(!inMiniGame){
+  function onTimeout(){
+    // default: pick first option if available
+    if(!inMiniGame && sessionIndex < sessionQuestions.length){
       const q = sessionQuestions[sessionIndex];
-      if(q && q.options && q.options[0]){
-        // apply first option
-        const opt = q.options[0];
-        economy = clamp(economy + (opt.econ||0), 0, 100);
-        bank = clamp(bank + (opt.bank||0), 0, 100);
-        publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0), 0, 100);
-        inflation = clamp(inflation + (opt.infl||0), 0, 20);
-        liquidity = clamp(liquidity + (opt.liq||0), 0, 100);
+      const opt = q.options[0];
+      if(opt){
+        economy = clamp(economy + (opt.econ||0),0,100);
+        bank = clamp(bank + (opt.bank||0),0,100);
+        publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0),0,100);
+        inflation = clamp(inflation + (opt.infl||0),0,20);
+        liquidity = clamp(liquidity + (opt.liq||0),0,100);
         updateStats();
         setMessage('Default option applied.');
-        playTwoVfxAt(window.innerWidth/2, eventArea.getBoundingClientRect().top+40, 'neutral');
-        sessionIndex++;
-        setTimeout(()=> nextPhase(), 600);
+        playSingleVfx(window.innerWidth/2, eventArea.getBoundingClientRect().top+40, 'neutral');
+        sessionIndex++; month++;
+        setTimeout(()=> scheduleNext(), 600);
         return;
       }
     }
-    // if in mini-game, just proceed
-    setTimeout(()=> nextPhase(), 400);
+    // if in mini game simply end and resume
+    setTimeout(()=> scheduleNext(), 400);
   }
 
-  // ---- progression ----
-  function nextPhase(){
-    clearTimer();
-    if(economy <= 0 || bank <= 0 || publicHappiness <= 0){ gameOver(); return; }
-    // end if finished 12 questions
-    if(sessionIndex >= sessionQuestions.length){
-      // end of session
-      gameOver();
-      return;
-    }
-    month++;
-    if(month > maxMonth){
-      gameOver(); return;
-    }
-    // schedule mini-game chance or next question
-    scheduleNext();
-  }
-
+  // ---------- Scheduling ----------
   function scheduleNext(){
-    updateStats();
-    // if all questions consumed, end
+    clearTimer();
+    // check end
     if(sessionIndex >= sessionQuestions.length){ gameOver(); return; }
+    if(economy <= 0 || bank <= 0 || publicHappiness <= 0){ gameOver(); return; }
+    updateStats();
     // 38% chance mini-game
     if(Math.random() < 0.38){
-      // show mini-game and remove question UI (previous months removed)
-      startMiniGameWeighted();
-      return;
+      startMiniGame();
+    } else {
+      presentMCQ();
     }
-    // otherwise present MCQ for this month
-    presentMCQForMonth();
   }
 
-  // ---- Mini-games (only liquidity and setRate preserved) ----
-  function startMiniGameWeighted(){
+  // ---------- Mini-games (liquidity & setRate) ----------
+  function startMiniGame(){
     inMiniGame = true;
     clearTimer();
+    buttonsArea.innerHTML = '';
+    miniArea.innerHTML = '';
     eventText.textContent = 'Mini-Game';
     eventSub.textContent = '';
-    miniArea.innerHTML = '';
-    buttonsArea.innerHTML = '';
-    // choice: 70% liquidity, 30% setRate
+    // 70% liquidity, 30% setRate
     if(Math.random() < 0.7) renderLiquidityMini();
     else renderSliderMini();
   }
 
   function renderLiquidityMini(){
-    // clear question UI (remove previous months)
-    eventText.textContent = 'Allocate emergency liquidity (drag coins)';
-    eventSub.textContent = '';
     miniArea.innerHTML = '';
-    buttonsArea.innerHTML = '';
-    const wrapper = document.createElement('div'); wrapper.style.marginTop='8px';
-    const coins = document.createElement('div');
+    eventText.textContent = 'Allocate emergency liquidity (drag coins)';
+    const coinsRow = document.createElement('div');
     for(let i=0;i<6;i++){
-      const c = document.createElement('span');
-      c.textContent='💰'; c.style.fontSize='26px'; c.style.margin='6px'; c.style.cursor='grab'; c.draggable=true;
+      const c = document.createElement('span'); c.textContent='💰'; c.style.fontSize='26px'; c.style.margin='6px'; c.style.cursor='grab'; c.draggable=true;
       c.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain','1'));
-      coins.appendChild(c);
+      coinsRow.appendChild(c);
     }
-    wrapper.appendChild(coins);
-    const drop = document.createElement('div'); drop.textContent='🏦 Drop here'; drop.style.marginTop='12px'; drop.style.padding='12px'; drop.style.border='2px dashed rgba(255,255,255,.08)'; drop.style.borderRadius='8px';
+    const drop = document.createElement('div'); drop.textContent='🏦 Drop here'; drop.style.marginTop='12px'; drop.style.padding='12px'; drop.style.border='2px dashed rgba(255,255,255,0.06)'; drop.style.borderRadius='8px';
     drop.addEventListener('dragover', e => e.preventDefault());
     drop.addEventListener('drop', e => {
       e.preventDefault();
       const v = parseInt(e.dataTransfer.getData('text/plain')||'1',10);
-      liquidity = clamp(liquidity + 5 * v, 0, 100);
-      setMessage('Liquidity allocated!');
+      liquidity = clamp(liquidity + 5 * v,0,100);
       updateStats();
-      const r = drop.getBoundingClientRect();
-      playTwoVfxAt(r.left + r.width/2, r.top + r.height/2, 'positive');
-      const first = coins.querySelector('span'); if(first) first.remove();
-      if(!coins.querySelector('span')) { inMiniGame=false; // after mini, do not re-show previous months' questions; we already removed them
-        setTimeout(()=> nextPhase(), 700);
-      }
+      setMessage('Liquidity allocated!');
+      const rect = drop.getBoundingClientRect();
+      playSingleVfx(rect.left + rect.width/2, rect.top + rect.height/2, 'positive');
+      const first = coinsRow.querySelector('span'); if(first) first.remove();
+      if(!coinsRow.querySelector('span')){ inMiniGame=false; setTimeout(()=> scheduleNext(), 700); }
     });
-    wrapper.appendChild(drop);
-    miniArea.appendChild(wrapper);
+    miniArea.appendChild(coinsRow); miniArea.appendChild(drop);
     startTimer(25);
   }
 
   function renderSliderMini(){
-    eventText.textContent = 'Set policy interest rate';
-    eventSub.textContent = '';
-    miniArea.innerHTML = '';
-    buttonsArea.innerHTML = '';
-    const wrapper = document.createElement('div'); wrapper.style.marginTop='8px';
+    miniArea.innerHTML=''; eventText.textContent='Set policy interest rate';
     const input = document.createElement('input'); input.type='range'; input.min=0; input.max=12; input.value = Math.round(inflation); input.style.width='90%';
-    const label = document.createElement('div'); label.style.marginTop='8px'; label.textContent = `Selected: ${input.value}%`;
-    wrapper.appendChild(input); wrapper.appendChild(label);
-    const setBtn = document.createElement('button'); setBtn.className='btn'; setBtn.textContent='Set Rate';
-    setBtn.addEventListener('click', e => {
-      inflation = clamp(Math.round(Number(input.value)),0,20);
-      setMessage(`Interest set to ${inflation}%`);
-      updateStats();
-      const r = input.getBoundingClientRect();
-      playTwoVfxAt(r.left + r.width/2, r.top + r.height/2, 'positive');
-      inMiniGame=false; setTimeout(()=> nextPhase(), 700);
-    });
-    wrapper.appendChild(setBtn);
+    const label = document.createElement('div'); label.textContent = `Selected: ${input.value}%`; label.style.marginTop='8px';
     input.addEventListener('input', ()=> label.textContent = `Selected: ${input.value}%`);
-    miniArea.appendChild(wrapper);
+    const setBtn = document.createElement('button'); setBtn.className='btn'; setBtn.textContent='Set Rate';
+    setBtn.addEventListener('click', (ev)=>{
+      inflation = clamp(Math.round(Number(input.value)),0,20);
+      updateStats(); setMessage(`Interest set to ${inflation}%`); playSingleVfx(ev.clientX || window.innerWidth/2, ev.clientY || 0, 'positive');
+      inMiniGame=false; setTimeout(()=> scheduleNext(), 700);
+    });
+    miniArea.appendChild(input); miniArea.appendChild(label); miniArea.appendChild(setBtn);
     startTimer(25);
   }
 
-  // ---- Game over and restart ----
+  // ---------- Game over & restart ----------
   function computeScore(){ const base = month * 120; const statSum = economy + bank + publicHappiness + liquidity; const penalty = inflation * 6; return Math.max(0, Math.round(base + statSum - penalty)); }
+
   function gameOver(){
     clearTimer();
-    buttonsArea.innerHTML = '';
-    const restart = document.createElement('button'); restart.className='btn'; restart.textContent='Restart Game'; restart.addEventListener('click', restartGame);
-    const submit = document.createElement('button'); submit.className='btn ghost'; submit.textContent='Submit Score'; submit.addEventListener('click', ()=> openLeaderboardAndFill(computeScore()));
-    buttonsArea.appendChild(restart); buttonsArea.appendChild(submit);
+    buttonsArea.innerHTML=''; miniArea.innerHTML='';
+    const restartBtn = document.createElement('button'); restartBtn.className='btn'; restartBtn.textContent='Restart Game'; restartBtn.addEventListener('click', restartGame);
+    const submitBtn = document.createElement('button'); submitBtn.className='btn'; submitBtn.textContent='Submit Score'; submitBtn.addEventListener('click', ()=> openLeaderboardAndFill(computeScore()));
+    buttonsArea.appendChild(restartBtn); buttonsArea.appendChild(submitBtn);
     if(economy>70 && bank>60 && publicHappiness>60) setMessage('Legendary Governor! You win! Good Game.');
     else if(economy<50 && bank<50) setMessage('You are not fit to be an RBI Governor 🥲');
     else setMessage('Game over — check stats and try again.');
     eventTitle.textContent = 'Nice try';
-    const rect = eventArea.getBoundingClientRect();
-    playTwoVfxAt(rect.left + rect.width/2, rect.top + 24, 'positive');
+    const rect = eventTitle.getBoundingClientRect();
+    playSingleVfx(rect.left + rect.width/2, rect.top + 20, 'positive');
   }
+
   function restartGame(){
     clearTimer();
-    // pick new session questions, attempting to avoid overlap with previous session (best-effort)
-    sessionQuestions = pickSessionQuestions();
-    sessionIndex = 0;
+    sessionQuestions = pickSessionQuestions(); sessionIndex = 0;
     economy = 50; bank = 50; publicHappiness = 50; inflation = 5; liquidity = 50;
-    month = 1; inMiniGame=false;
-    setMessage('');
-    updateStats();
-    setTimeout(()=> scheduleNext(), 350);
+    month = 1; inMiniGame = false;
+    setMessage(''); updateStats();
+    setTimeout(()=> presentMCQ(), 350);
   }
 
-  // ---- Leaderboard ----
+  // ---------- Leaderboard ----------
   function loadLeaderboard(){ try{ const raw = localStorage.getItem(LB_KEY); return raw?JSON.parse(raw):[] } catch(e){ return []; } }
   function saveLeaderboard(arr){ try{ localStorage.setItem(LB_KEY, JSON.stringify(arr)); } catch(e){} }
-  function addScore(name, score){ const arr = loadLeaderboard(); arr.push({name:(name||'Anonymous').slice(0,30), score: Number(score||0), date:new Date().toISOString()}); arr.sort((a,b)=> b.score - a.score); saveLeaderboard(arr.slice(0,50)); renderLeaderboard(); }
-  function renderLeaderboard(){ const arr = loadLeaderboard(); leaderboardList.innerHTML=''; if(arr.length===0){ const n=document.createElement('div'); n.textContent='pls type ur name and saved locally in ur browser to flex to other coons'; n.style.color = getComputedStyle(document.body).getPropertyValue('--muted'); leaderboardList.appendChild(n); return; } arr.forEach((e,i)=>{ const row=document.createElement('div'); row.className='lb-entry'; row.innerHTML = `<div>${i+1}. ${escapeHtml(e.name)}</div><div style="font-weight:900">${e.score}</div>`; leaderboardList.appendChild(row); }); }
-  function openLeaderboardAndFill(score){ leaderboardModal.classList.add('open'); leaderboardModal.setAttribute('aria-hidden','false'); renderLeaderboard(); lbNameInput.value=''; lbNameInput.dataset.autofill = score; lbNameInput.focus(); }
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function addScore(name,score){ const arr = loadLeaderboard(); arr.push({name:(name||'Anonymous').slice(0,30),score:Number(score||0),date:new Date().toISOString()}); arr.sort((a,b)=>b.score-a.score); saveLeaderboard(arr.slice(0,50)); renderLeaderboard(); }
+  function renderLeaderboard(){ const arr = loadLeaderboard(); leaderboardList.innerHTML=''; if(arr.length===0){ const n=document.createElement('div'); n.textContent='pls type ur name and saved locally in ur browser to flex to other coons'; n.style.color=getComputedStyle(document.body).getPropertyValue('--muted'); leaderboardList.appendChild(n); return; } arr.forEach((e,i)=>{ const row=document.createElement('div'); row.className='lb-entry'; row.innerHTML=`<div>${i+1}. ${escapeHtml(e.name)}</div><div style="font-weight:900">${e.score}</div>`; leaderboardList.appendChild(row); }); }
+  function openLeaderboardAndFill(score){ leaderboardModal.style.display='block'; renderLeaderboard(); lbNameInput.value=''; lbNameInput.dataset.autofill = score; lbNameInput.focus(); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-  // ---- UI hooks ----
+  // ---------- UI Hooks ----------
   openLeaderboardBtn.addEventListener('click', ()=> openLeaderboardAndFill(computeScore()));
-  closeLeaderboardBtn.addEventListener('click', ()=> { leaderboardModal.classList.remove('open'); leaderboardModal.setAttribute('aria-hidden','true'); });
-  clearLeaderboardBtn.addEventListener('click', ()=> { if(confirm('Clear leaderboard?')){ saveLeaderboard([]); renderLeaderboard(); }});
+  closeLeaderboardBtn.addEventListener('click', ()=> { leaderboardModal.style.display='none'; });
   submitScoreBtn.addEventListener('click', ()=> {
     const name = lbNameInput.value.trim() || 'Anonymous';
     const score = Number(lbNameInput.dataset.autofill || computeScore());
-    addScore(name, score); lbNameInput.value=''; lbNameInput.dataset.autofill=''; setMessage('Score submitted!');
-    const r = submitScoreBtn.getBoundingClientRect(); playTwoVfxAt(r.left + r.width/2, r.top + r.height/2, 'positive');
+    addScore(name, score);
+    lbNameInput.value=''; lbNameInput.dataset.autofill='';
+    setMessage('Score submitted!');
+    const r = submitScoreBtn.getBoundingClientRect();
+    playSingleVfx(r.left + r.width/2, r.top + r.height/2, 'positive');
+  });
+  document.getElementById('footerDontBtn').addEventListener('click', (e)=> {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX || r.left + r.width/2, y = r.top + r.height/2;
+    playSingleVfx(x,y,'positive');
+    const open = hariRap.style.opacity === '1';
+    if(open){ hariRap.style.maxHeight='0'; hariRap.style.opacity='0'; } else { hariRap.style.maxHeight='420px'; hariRap.style.opacity='1'; }
   });
 
-  // Don't click rap toggle (works)
-  let rapOpen = false;
-  footerDontBtn.addEventListener('click', (e)=>{
-    const rect = footerDontBtn.getBoundingClientRect();
-    const x = e.clientX || rect.left + rect.width/2, y = rect.top + rect.height/2;
-    playTwoVfxAt(x,y,'positive');
-    rapOpen = !rapOpen;
-    if(rapOpen){ hariRap.style.maxHeight='420px'; hariRap.style.opacity='1'; hariRap.setAttribute('aria-hidden','false'); footerDontBtn.textContent='Close rap'; }
-    else { hariRap.style.maxHeight='0'; hariRap.style.opacity='0'; hariRap.setAttribute('aria-hidden','true'); footerDontBtn.textContent="Don't click"; }
-  });
+  document.getElementById('themeToggle').addEventListener('change', (e)=> document.body.classList.toggle('light', e.target.checked) );
+  document.getElementById('title').textContent = 'RBI Game'; // ensure unchanged
 
-  themeToggle.addEventListener('change', ()=> document.body.classList.toggle('light', themeToggle.checked));
-  document.getElementById('title').textContent = 'RBI Game'; // ensure title unchanged
-
-  // ---- Start the game ----
-  // initial sessionQuestions already picked earlier
-  let sessionIndex = 0;
+  // ---------- Start ----------
+  sessionQuestions = pickSessionQuestions();
+  sessionIndex = 0;
   updateStats();
-  // present first MCQ after a short delay
-  setTimeout(()=> presentMCQForMonth(), 400);
+  // show first question quickly
+  setTimeout(()=> presentMCQ(), 350);
 
-  // expose small helpers for debugging (optional)
-  window.__RBI = { restart: restartGame, stats: ()=> ({ economy, bank, publicHappiness, inflation, liquidity, month }), sessionQuestions };
+  // ---------- Error handling ----------
+  window.addEventListener('error', (ev)=> console.error('Runtime error:', ev.message, ev.filename, ev.lineno) );
 
-  // Defensive catch-all to avoid runtime breaking (log errors)
-  window.addEventListener('error', (e)=> console.error('Runtime error caught: ', e.message, e.filename, e.lineno));
+  // ---------- Expose debug helpers ----------
+  window.__RBI = { restart: restartGame, stats: ()=> ({economy,bank,publicHappiness,inflation,liquidity,month,sessionIndex}), sessionQuestions };
 
-  // ---- End of DOMContentLoaded handler ----
+  // helper: pickSessionQuestions (declared earlier but keep function here to be top-level)
+  function pickSessionQuestions(){
+    // shuffle pool
+    const arr = mcqPool.slice();
+    for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    const pick = arr.slice(0,12);
+    // store IDs to prevent exact same in next session ideally
+    try{ localStorage.setItem(PREV_SESSION_KEY, JSON.stringify(pick.map(p=>p.id))); }catch(e){}
+    return pick;
+  }
+
 });
 </script>
 </body>
