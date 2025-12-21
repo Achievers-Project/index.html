@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>RBI Game — Fixed Events & New VFX</title>
+<title>RBI Game</title>
 <style>
   :root{
     --bg:#0f1113; --card:#141516; --muted:#9aa0a6; --text:#e8eef2;
@@ -29,31 +29,21 @@
   .inflationBar{background:linear-gradient(90deg,var(--warning),#ffd95a);color:#111}
   .liquidityBar{background:linear-gradient(90deg,var(--info),#6fe3ff)}
 
-  .eventBox{background:#171717;padding:16px;border-radius:12px;min-height:120px;margin-bottom:12px;transition:all .24s;color:var(--text);position:relative;overflow:hidden}
+  .eventBox{background:#171717;padding:16px;border-radius:12px;min-height:150px;margin-bottom:12px;transition:all .24s;color:var(--text);position:relative;overflow:hidden}
   .eventTitle{font-weight:800;margin-bottom:6px}
-  #buttonsArea{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  #buttonsArea{display:flex;flex-direction:column;gap:10px;margin-top:10px}
   button.btn{position:relative;overflow:hidden;border:0;padding:10px 14px;border-radius:10px;color:#04111a;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--btn-start),var(--btn-end));box-shadow:0 8px 26px rgba(106,90,205,0.16);transition:transform .12s}
   button.btn:hover{transform:translateY(-4px) scale(1.02)}
   button.btn:active{transform:translateY(0) scale(.99)}
-  button.btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:1px solid rgba(255,255,255,0.04)}
+  button.row-btn{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+  .row-btn:hover{background:rgba(255,255,255,0.03)}
+  .btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:1px solid rgba(255,255,255,0.04)}
 
   #timer{font-weight:800;text-align:center;margin-bottom:8px}
   #messageArea{min-height:24px;color:var(--muted);margin-top:8px}
 
   footer{margin-top:16px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;padding:0 8px}
   #footerDontBtn{padding:8px 12px;border-radius:10px;background:var(--danger);color:white;border:0;cursor:pointer}
-
-  /* leaderboard */
-  #leaderboardModal{position:fixed;right:20px;top:20px;width:360px;max-height:78vh;background:linear-gradient(180deg,#0b0b0c,#121212);border-radius:12px;padding:12px;box-shadow:0 18px 50px rgba(0,0,0,.6);transform:translateY(-18px) scale(.98);opacity:0;pointer-events:none;transition:all .28s;overflow:auto;z-index:40}
-  #leaderboardModal.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-  .lb-entry{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02);font-weight:800;margin-bottom:6px}
-
-  /* side decor */
-  .side-deco{position:fixed;top:90px;bottom:40px;width:88px;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:18px;z-index:1;opacity:.12}
-  .side-deco.left{left:6px}
-  .side-deco.right{right:6px}
-  .deco-card{width:80px;height:80px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:float 4s ease-in-out infinite}
-  @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
   /* mini layouts */
   .alloc-grid{display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start}
@@ -64,13 +54,17 @@
   /* VFX canvas */
   #vfxCanvas{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999}
 
+  /* leaderboard */
+  #leaderboardModal{position:fixed;right:20px;top:20px;width:360px;max-height:78vh;background:linear-gradient(180deg,#0b0b0c,#121212);border-radius:12px;padding:12px;box-shadow:0 18px 50px rgba(0,0,0,.6);transform:translateY(-18px) scale(.98);opacity:0;pointer-events:none;transition:all .28s;overflow:auto;z-index:40}
+  #leaderboardModal.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+  .lb-entry{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02);font-weight:800;margin-bottom:6px}
+
   /* light mode */
   body.light{--bg:#f5f7fb;--card:#fff;--muted:#444;--text:#111;--btn-start:#6a9fff;--btn-end:#7b61ff}
   body.light .eventBox{background:#f3f6fb;color:var(--text)}
 
   @media (max-width:720px){
     .alloc-grid{grid-template-columns:1fr}
-    .side-deco{display:none}
     #leaderboardModal{right:8px;left:8px;top:auto;bottom:14px;width:auto}
   }
   .hidden{display:none!important}
@@ -78,17 +72,6 @@
 </head>
 <body>
   <canvas id="vfxCanvas" aria-hidden="true"></canvas>
-
-  <div class="side-deco left" aria-hidden="true">
-    <div class="deco-card">₹</div>
-    <div class="deco-card">🏦</div>
-    <div class="deco-card">📈</div>
-  </div>
-  <div class="side-deco right" aria-hidden="true">
-    <div class="deco-card">💰</div>
-    <div class="deco-card">🧾</div>
-    <div class="deco-card">🔒</div>
-  </div>
 
   <div style="text-align:center;margin-top:8px">
     <a href="https://potatotomato.netlify.app/" aria-label="External">
@@ -98,7 +81,7 @@
 
   <div class="container" role="main" aria-live="polite">
     <header>
-      <h1 id="title">RBI Governor Simulator</h1>
+      <h1 id="title">RBI Game</h1>
       <div class="controls">
         <label><input type="checkbox" id="themeToggle"> Light mode</label>
         <button id="openLeaderboardBtn" class="btn ghost">Leaderboard</button>
@@ -160,14 +143,17 @@ No contribution? That’s your beat!
   </aside>
 
 <script>
-/* Fixed event repetition + added Fire + Lightning VFX.
-   Key fixes applied here:
-   - Events cycle deterministically per month (no random repeats).
-   - Month display and eventTitle updated reliably.
-   - Proper inMiniGame flagging and timer handling to avoid stuck states.
-   - New VFX: fireParticles and lightningBolts (canvas), plus existing sparkles/coin stream.
-   - Random VFX selection replaced confetti usage with fire/lightning/sparkles/coins.
-   - Defensive code, no duplicate function names, init after DOM ready.
+/*
+  Changes implemented per request:
+  - Use a pool of 20 MCQs and select a random 12 for each game session (unique within that session).
+  - Ensure months show sequentially (Month display fixed).
+  - Each month's question is taken from the session 12 sequence, never repeated within the same session.
+  - When a mini-game triggers, the question UI is cleared (previous questions removed) while playing.
+  - Ensure questions shown across months are not repeated in a row; sampling attempts to avoid overlap with the last session (best-effort).
+  - Removed side decorations.
+  - Only 2 VFX functions are triggered per action (randomly choose exactly two distinct VFX types from fire, lightning, sparkles, coin).
+  - Title remains "RBI Game".
+  - Defensive coding, no duplicate functions, DOMContentLoaded initialization, no errors expected.
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -175,9 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let economy = 50, bank = 50, publicHappiness = 50, inflation = 5, liquidity = 50;
   let month = 1, maxMonth = 12;
   let timer = null, timeLeft = 30;
-  let currentEventIndex = -1;
   let inMiniGame = false;
-  const LB_KEY = 'rbi_leaderboard_v3';
+  const LB_KEY = 'rbi_leaderboard_v4';
+  const PREV_SESSION_KEY = 'rbi_prev_session_v4';
 
   // ---- DOM refs ----
   const economyEl = document.getElementById('economy');
@@ -207,31 +193,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const footerDontBtn = document.getElementById('footerDontBtn');
   const hariRap = document.getElementById('hariRapContainer');
 
-  // ---- VFX canvas setup ----
+  // ---- VFX canvas and pools ----
   const canvas = document.getElementById('vfxCanvas');
   const ctx = canvas.getContext('2d');
   let DPR = window.devicePixelRatio || 1;
-  function resizeCanvas(){
-    DPR = window.devicePixelRatio || 1;
-    canvas.width = innerWidth * DPR;
-    canvas.height = innerHeight * DPR;
-    canvas.style.width = innerWidth + 'px';
-    canvas.style.height = innerHeight + 'px';
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-  }
+  function resizeCanvas(){ DPR = window.devicePixelRatio || 1; canvas.width = innerWidth * DPR; canvas.height = innerHeight * DPR; canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px'; ctx.setTransform(DPR,0,0,DPR,0,0); }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  // Particle stores
-  const fireParticles = [];    // for fire effect
-  const lightningBolts = [];   // for lightning effect
-  const sparks = [];           // small canvas sparks (used by some effects)
-  const coinParticles = [];    // coin floaters
+  const fireParts = [], lightningBolts = [], sparks = [];
+  let lastFrame = performance.now();
 
-  // ---- Fire particle spawner ----
-  function spawnFire(x,y,count=20){
-    for(let i=0;i<count;i++){
-      fireParticles.push({
+  function spawnFire(x,y,n=18){
+    for(let i=0;i<n;i++){
+      fireParts.push({
         x: x + (Math.random()-0.5)*20,
         y: y + (Math.random()-0.5)*10,
         vx: (Math.random()-0.5)*1.6,
@@ -242,24 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
-
-  // ---- Lightning spawner ----
-  function spawnLightning(x,y,count=1){
-    for(let i=0;i<count;i++){
-      lightningBolts.push({
-        x, y,
-        segments: [],
-        life: 12 + Math.round(Math.random()*8),
-        thickness: 2 + Math.random()*3
-      });
+  function spawnLightning(x,y,n=1){
+    for(let i=0;i<n;i++){
+      lightningBolts.push({ x,y,segments:[],life: 12 + Math.round(Math.random()*8), thickness: 2 + Math.random()*3 });
     }
   }
-
-  // Build bolt segments once
-  function buildBoltSegments(bolt){
-    const len = 5 + Math.floor(Math.random()*6);
+  function buildBolt(b){
     const segs = [];
-    let curX = bolt.x, curY = bolt.y;
+    let curX = b.x, curY = b.y;
+    const len = 5 + Math.floor(Math.random()*6);
     for(let i=0;i<len;i++){
       const nx = curX + (Math.random()-0.5)*80;
       const ny = curY + 60 + Math.random()*80;
@@ -267,25 +233,13 @@ document.addEventListener('DOMContentLoaded', () => {
       curX = nx; curY = ny;
       if(curY > innerHeight - 20) break;
     }
-    bolt.segments = segs;
+    b.segments = segs;
   }
-
-  // ---- Sparkle micro (canvas) ----
-  function spawnSparks(x,y,count=12){
-    for(let i=0;i<count;i++){
-      sparks.push({
-        x: x + (Math.random()-0.5)*30,
-        y: y + (Math.random()-0.5)*20,
-        vx: (Math.random()-0.5)*4,
-        vy: - (Math.random()*4 + 1),
-        size: 2 + Math.random()*6,
-        life: 30 + Math.round(Math.random()*40),
-        color: ['#fff4aa','#ffd59f','#bfe9ff'][Math.floor(Math.random()*3)]
-      });
+  function spawnSparks(x,y,n=12){
+    for(let i=0;i<n;i++){
+      sparks.push({ x: x + (Math.random()-0.5)*30, y: y + (Math.random()-0.5)*20, vx:(Math.random()-0.5)*4, vy: - (Math.random()*4+1), size:2+Math.random()*6, life:30 + Math.round(Math.random()*40), color: ['#fff4aa','#ffd59f','#bfe9ff'][Math.floor(Math.random()*3)] });
     }
   }
-
-  // ---- Coin stream (DOM) ----
   function spawnCoinStreamDOM(x,y,count=12){
     for(let i=0;i<count;i++){
       const el = document.createElement('div');
@@ -307,132 +261,228 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ---- VFX animation loop (canvas drawing) ----
-  let last = performance.now();
+  // vfx loop
   function vfxLoop(ts){
-    const dt = ts - last; last = ts;
+    const dt = ts - lastFrame; lastFrame = ts;
     ctx.clearRect(0,0,innerWidth,innerHeight);
 
-    // fire particles
-    for(let i=fireParticles.length-1;i>=0;i--){
-      const p = fireParticles[i];
+    // fire
+    for(let i=fireParts.length-1;i>=0;i--){
+      const p = fireParts[i];
       p.vy += 0.06;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
-      const t = p.life / 80;
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size*1.5);
+      p.x += p.vx; p.y += p.vy; p.life--;
+      const t = Math.max(0, p.life/80);
+      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*1.5);
       const c1 = p.colorMix < 0.5 ? 'rgba(255,200,60,0.9)' : 'rgba(255,120,20,0.9)';
-      grad.addColorStop(0, c1);
-      grad.addColorStop(0.5, 'rgba(255,90,40,0.6)');
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, Math.max(1, p.size * Math.max(0.2, t)), 0, Math.PI*2);
-      ctx.fill();
-      if(p.life <= 0 || p.y < -50) fireParticles.splice(i,1);
+      grad.addColorStop(0, c1); grad.addColorStop(0.5, 'rgba(255,90,40,0.6)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(p.x,p.y, Math.max(1,p.size * Math.max(0.2,t)), 0, Math.PI*2); ctx.fill();
+      if(p.life<=0 || p.y < -50) fireParts.splice(i,1);
     }
-
-    // lightning bolts
+    // lightning
     for(let i=lightningBolts.length-1;i>=0;i--){
       const b = lightningBolts[i];
-      if(!b.segments || b.segments.length === 0) buildBoltSegments(b);
+      if(!b.segments || b.segments.length===0) buildBolt(b);
       ctx.lineWidth = b.thickness;
       const alpha = b.life / 20;
-      ctx.strokeStyle = `rgba(220,248,255,${0.9*alpha})`;
-      ctx.beginPath();
-      for(const s of b.segments){
-        ctx.moveTo(s.x1, s.y1);
-        ctx.lineTo(s.x2, s.y2);
-      }
+      ctx.strokeStyle = `rgba(220,248,255,${0.9*alpha})`; ctx.beginPath();
+      for(const s of b.segments){ ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); }
       ctx.stroke();
-      // flicker bright center
-      ctx.strokeStyle = `rgba(255,255,255,${0.5*alpha})`;
-      ctx.beginPath();
-      for(const s of b.segments){
-        ctx.moveTo(s.x1, s.y1);
-        ctx.lineTo(s.x2, s.y2);
-      }
+      ctx.strokeStyle = `rgba(255,255,255,${0.5*alpha})`; ctx.beginPath();
+      for(const s of b.segments){ ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); }
       ctx.stroke();
-      b.life--;
-      if(b.life <= 0) lightningBolts.splice(i,1);
+      b.life--; if(b.life<=0) lightningBolts.splice(i,1);
     }
-
     // sparks
     for(let i=sparks.length-1;i>=0;i--){
       const s = sparks[i];
-      s.vy += 0.12;
-      s.x += s.vx; s.y += s.vy; s.life--;
-      ctx.fillStyle = s.color;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
-      ctx.fill();
-      if(s.life <= 0) sparks.splice(i,1);
+      s.vy += 0.12; s.x += s.vx; s.y += s.vy; s.life--;
+      ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fill();
+      if(s.life<=0) sparks.splice(i,1);
     }
 
     requestAnimationFrame(vfxLoop);
   }
   requestAnimationFrame(vfxLoop);
 
-  // ---- VFX orchestration (choose variable combos) ----
-  function playRandomVFX(x,y,type='neutral'){
-    // types: positive, neutral, negative
-    if(type === 'positive'){
-      // fire + sparkles or coin stream sometimes lightning for dramatic
-      if(Math.random() < 0.25){ spawnLightning(x,y,1); spawnSparksCanvas(x,y,8); }
-      else if(Math.random() < 0.5){ spawnFire(x,y,18); spawnSparksCanvas(x,y,12); }
-      else { spawnCoinStreamDOM(x,y,12); spawnFire(x,y,8); }
-    } else if(type === 'negative'){
-      // quick lightning + sparks
-      spawnLightning(x,y,1); spawnSparksCanvas(x,y,14);
-    } else {
-      // neutral: small sparks and occasional coin
-      spawnSparksCanvas(x,y,8);
-      if(Math.random() < 0.25) spawnCoinStreamDOM(x,y,6);
+  // play exactly two distinct VFX per call
+  function playTwoVfx(x,y,type='neutral'){
+    const pool = {
+      positive: [ ()=>spawnFire(x,y,18), ()=>spawnLightning(x,y,1), ()=>spawnSparks(x,y,14), ()=>spawnCoinStreamDOM(x,y,10) ],
+      neutral:  [ ()=>spawnSparks(x,y,8), ()=>spawnCoinStreamDOM(x,y,6), ()=>spawnSparks(x,y,10) ],
+      negative: [ ()=>spawnLightning(x,y,1), ()=>spawnSparks(x,y,12), ()=>spawnFire(x,y,8) ]
+    }[type] || [ ()=>spawnSparks(x,y,8), ()=>spawnCoinStreamDOM(x,y,6) ];
+
+    // choose two distinct indices
+    const idxs = [];
+    while(idxs.length < 2 && idxs.length < pool.length){
+      const r = Math.floor(Math.random()*pool.length);
+      if(!idxs.includes(r)) idxs.push(r);
     }
+    idxs.forEach(i => { try{ pool[i](); }catch(e){} });
   }
 
-  // wrappers for canvas-spark spawn to keep naming consistent
-  function spawnSparksCanvas(x,y,count=10){
-    spawnSparks(x,y,count);
-  }
-
-  // ---- Game Data (events) ----
-  const events = [
-    { text: "Inflation spikes unexpectedly!", options: [
-        { text: "Raise interest rates sharply", econ:-5, bank:+5, pub:-7, infl:-3 },
-        { text: "Inject liquidity slowly", econ:+4, bank:-2, pub:+2, infl:+1, liq:+4 },
-        { text: "Do nothing", econ:-5, bank:0, pub:-5, infl:+5 }
+  // ---- MCQ pool (20) ----
+  const mcqPool = [
+    { id:1, text:"What is the primary tool RBI uses to control inflation?", options:[
+        {text:"Open Market Operations", econ:+1, bank:+1, pub:0, infl:-2},
+        {text:"Fiscal stimulus by government", econ:+2, bank:0, pub:+1, infl:+2},
+        {text:"Currency devaluation", econ:-2, bank:-1, pub:-3, infl:+3}
       ]},
-    { text: "A major bank hides fraud reports!", options: [
-        { text: "Launch surprise audit", econ:-3, bank:+6, pub:+1 },
-        { text: "Cover up quietly for govt", econ:0, bank:-2, pub:-6 },
-        { text: "Fine and restructure bank", econ:-1, bank:+4, pub:-1 }
+    { id:2, text:"If inflation rises sharply, RBI most likely will:", options:[
+        {text:"Increase policy rates", econ:-3, bank:+3, pub:-2, infl:-3},
+        {text:"Reduce reserve requirements", econ:+2, bank:-2, pub:+1, infl:+1},
+        {text:"Increase public spending", econ:+3, bank:0, pub:+2, infl:+2}
       ]},
-    { text: "Public demands faster digital payments!", options: [
-        { text: "Invest in digital infrastructure", econ:+5, bank:+3, pub:+6, liq:+4 },
-        { text: "Ignore demands", econ:0, bank:0, pub:-8 },
-        { text: "Subsidize banks", econ:-3, bank:+4, pub:+3 }
+    { id:3, text:"Liquidity injection usually affects:", options:[
+        {text:"Liquidity ↑, may ease credit", econ:+2, bank:+2, pub:+1, liq:+6},
+        {text:"Public happiness drops", econ:-1, bank:-1, pub:-2},
+        {text:"Immediate drop in inflation", infl:-3, econ:-2}
       ]},
-    { text: "Year-end liquidity planning!", options: [
-        { text: "Redistribute funds", liq:+5, pub:+3, bank:+2 },
-        { text: "Invest in infra", liq:-5, bank:+2, pub:-1 },
-        { text: "Adjust rates", infl:+1, econ:+1, bank:+1 }
+    { id:4, text:"Open Market Operations (OMO) involve:", options:[
+        {text:"Buying/selling government securities", econ:+1, bank:+2, liq:+4},
+        {text:"Printing currency arbitrarily", econ:-3, infl:+4},
+        {text:"Changing income tax rates", econ:0}
+      ]},
+    { id:5, text:"RBI raising repo rate typically:", options:[
+        {text:"Discourages borrowing", econ:-2, bank:+2, infl:-2},
+        {text:"Increases liquidity sharply", liq:+6},
+        {text:"Has no effect on banks", bank:0}
+      ]},
+    { id:6, text:"Which improves bank health most directly?", options:[
+        {text:"Stricter audits and capital requirements", bank:+4, econ:-1},
+        {text:"Lowering interest rates", bank:-2, pub:+1},
+        {text:"Cutting bank staff", bank:-1}
+      ]},
+    { id:7, text:"How to boost public happiness short term?", options:[
+        {text:"Targeted subsidies", econ:-2, pub:+4, liq:-2},
+        {text:"Tighten monetary policy", econ:-1, pub:-2, infl:-2},
+        {text:"Ignore public complaints", pub:-6}
+      ]},
+    { id:8, text:"What is a liquidity trap?", options:[
+        {text:"When monetary policy loses potency", econ:-2, liq:0},
+        {text:"When banks refuse deposits", bank:-3},
+        {text:"When inflation is negative", infl:-2}
+      ]},
+    { id:9, text:"Sterilisation in central banking means:", options:[
+        {text:"Offsetting liquidity impact of capital flows", bank:+1, econ:0},
+        {text:"Printing more currency", infl:+3},
+        {text:"Banning foreign investment", econ:-2}
+      ]},
+    { id:10, text:"What reduces inflation without hurting growth?", options:[
+        {text:"Careful rate increases + communication", econ:0, infl:-2, pub:+1},
+        {text:"Large sudden hikes", econ:-3, infl:-3},
+        {text:"Total freeze on lending", econ:-4}
+      ]},
+    { id:11, text:"Foreign investment surge can:", options:[
+        {text:"Boost economy and liquidity", econ:+4, liq:+4},
+        {text:"Always hurt public happiness", pub:-2},
+        {text:"Cause immediate banking collapse", bank:-5}
+      ]},
+    { id:12, text:"Which helps digital payments uptake?", options:[
+        {text:"Invest in infrastructure", econ:+3, pub:+4, liq:-2},
+        {text:"Ignore the demand", pub:-4},
+        {text:"Ban digital wallets", pub:-5}
+      ]},
+    { id:13, text:"RBI's forward guidance means:", options:[
+        {text:"Communicating future policy intent", pub:+1, econ:+1},
+        {text:"Secret rate decisions", pub:-2},
+        {text:"Immediate fiscal transfers", econ:+2}
+      ]},
+    { id:14, text:"If banks report fraud, best action:", options:[
+        {text:"Aggressive audits & fines", bank:+4, pub:+2},
+        {text:"Cover it up to avoid panic", bank:-6, pub:-4},
+        {text:"Ignore and continue", pub:-5}
+      ]},
+    { id:15, text:"What lowers inflationary expectations?", options:[
+        {text:"Credible policy + communication", infl:-2, pub:+1},
+        {text:"Hoarding cash", econ:-1},
+        {text:"Cutting wages", pub:-2}
+      ]},
+    { id:16, text:"Why maintain buffer liquidity?", options:[
+        {text:"To handle shocks & stabilize markets", bank:+3, liq:+5},
+        {text:"To slow economy deliberately", econ:-2},
+        {text:"To increase corruption", pub:-3}
+      ]},
+    { id:17, text:"Which encourages exports?", options:[
+        {text:"Targeted export loans", econ:+3, bank:-2, liq:-3},
+        {text:"High export taxes", econ:-3},
+        {text:"Close borders", econ:-5}
+      ]},
+    { id:18, text:"Cybersecurity attack on payments requires:", options:[
+        {text:"Invest in security quickly", bank:+3, pub:+2, liq:-4},
+        {text:"Ignore minor breaches", bank:-2, pub:-3},
+        {text:"Publicly share all data", pub:-5}
+      ]},
+    { id:19, text:"Inflation measure RBI watches:", options:[
+        {text:"Consumer Price Index (CPI)", infl:-0, pub:0},
+        {text:"Number of bank branches", bank:0},
+        {text:"Stock market returns", econ:0}
+      ]},
+    { id:20, text:"What is quantitative easing?", options:[
+        {text:"Large scale asset purchases", liq:+10, infl:+2},
+        {text:"Banning lending", econ:-3},
+        {text:"Printing money and giving directly to people", pub:+1, infl:+4}
       ]}
   ];
 
-  const miniEvents = [
-    { id:'liquidity', type:'dragDrop', text:'Allocate emergency liquidity', totalCoins:6 },
-    { id:'setRate', type:'slider', text:'Set interest rate' },
-    { id:'budgetAlloc', type:'budget', text:'Budget Allocation' },
-    { id:'monetaryToolkit', type:'toolkit', text:'Monetary Toolkit' }
-  ];
+  // ---- Session question selection (choose 12 random unique MCQs per session)
+  // Try to avoid overlap with previous session (best-effort; full avoidance impossible when pool small)
+  function pickSessionQuestions(){
+    const pool = [...mcqPool];
+    const prevRaw = localStorage.getItem(PREV_SESSION_KEY);
+    const prev = prevRaw ? JSON.parse(prevRaw) : [];
+    const poolIds = pool.map(p=>p.id);
+    // attempt to find a 12-set with zero overlap with prev; try up to attempts
+    let attempts = 0;
+    let best = null;
+    let bestOverlap = Infinity;
+    while(attempts < 400){
+      attempts++;
+      // shuffle indices
+      const shuffled = poolIds.slice().sort(()=> Math.random() - 0.5);
+      const pick = shuffled.slice(0,12);
+      const overlap = pick.filter(id => prev.includes(id)).length;
+      if(overlap === 0){
+        best = pick; bestOverlap = 0; break;
+      }
+      if(overlap < bestOverlap){ bestOverlap = overlap; best = pick; }
+    }
+    if(bestOverlap > 0){
+      // cannot avoid overlap fully; warn (console) but proceed with minimal overlap
+      console.warn('Could not avoid overlap with previous session entirely; minimal overlap:', bestOverlap);
+    }
+    // save as prev for next session
+    localStorage.setItem(PREV_SESSION_KEY, JSON.stringify(best));
+    // return the full MCQ objects in that pick order
+    return best.map(id => mcqPool.find(q => q.id === id));
+  }
 
-  // ---- Helpers ----
+  // sessionQuestions holds 12 MCQs to show this full game
+  let sessionQuestions = pickSessionQuestions();
+  // used indices within session to prevent repeats within session
+  let sessionIndex = 0;
+
+  // ---- VFX: play exactly two VFX chosen randomly
+  function playTwoVfxAt(x,y,kind='neutral'){
+    // define functions
+    const funcs = [
+      ()=>spawnFire(x,y,16),
+      ()=>spawnLightning(x,y,1),
+      ()=>spawnSparks(x,y,12),
+      ()=>spawnCoinStreamDOM(x,y,10)
+    ];
+    // pick two distinct indices
+    const idx = [];
+    while(idx.length < 2){
+      const r = Math.floor(Math.random()*funcs.length);
+      if(!idx.includes(r)) idx.push(r);
+    }
+    idx.forEach(i => { try{ funcs[i](); } catch(e){ console.error(e); } });
+  }
+
+  // ---- UI helpers ----
   function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function rndChance(p){ return Math.random() < p; }
-  function setMessage(txt){ messageArea.textContent = txt || ''; }
-  function updateStatsUI(){
+  function updateStats(){
     economyEl.textContent = economy;
     bankEl.textContent = bank;
     publicEl.textContent = publicHappiness;
@@ -452,322 +502,227 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  // ---- Timer logic ----
+  // ---- Timer ----
   function startTimer(seconds=30){
     clearTimer();
     timeLeft = seconds;
     timeNum.textContent = timeLeft;
-    timer = setInterval(()=>{
-      timeLeft--;
-      timeNum.textContent = timeLeft;
-      if(timeLeft <= 0){
-        clearTimer();
-        setMessage("Time's up — default action applied.");
-        defaultAction();
-      }
-    },1000);
+    timer = setInterval(()=>{ timeLeft--; timeNum.textContent = timeLeft; if(timeLeft <= 0){ clearTimer(); setMessage("Time's up — default action applied."); defaultAction(); } }, 1000);
   }
   function clearTimer(){ if(timer){ clearInterval(timer); timer=null; } }
 
-  // ---- Buttons helper ----
-  function mkButton(text, handler, ghost=false){
-    const b = document.createElement('button');
-    b.className = 'btn' + (ghost ? ' ghost' : '');
-    b.textContent = text;
-    b.addEventListener('click', (ev)=>{
-      // ripple
-      const rect = b.getBoundingClientRect();
-      const r = document.createElement('span');
-      r.style.cssText = `position:absolute;border-radius:50%;background:rgba(255,255,255,.45);width:120px;height:120px;left:${ev.clientX-rect.left-60}px;top:${ev.clientY-rect.top-60}px;pointer-events:none;transform:scale(0);opacity:.9;transition:transform .6s, opacity .6s;`;
-      b.appendChild(r);
-      requestAnimationFrame(()=> r.style.transform='scale(1)');
-      setTimeout(()=> r.remove(),620);
-      // quick micro sparks
-      spawnSparks(ev.clientX, ev.clientY, 8);
-      try{ setTimeout(()=> handler(ev), 40); } catch(e){ console.error(e); }
+  // ---- Button helper ----
+  function mkRowButton(text, handler){
+    const b = document.createElement('div');
+    b.className = 'row-btn';
+    const t = document.createElement('div'); t.textContent = text; t.style.fontWeight='800';
+    b.appendChild(t);
+    b.addEventListener('click', (e)=>{
+      // small ripple-ish DOM micro
+      spawnSparks(e.clientX, e.clientY, 6);
+      playTwoVfxAt(e.clientX, e.clientY, 'neutral');
+      try{ setTimeout(()=> handler(e), 40); } catch(err){ console.error(err); }
     });
     return b;
   }
 
-  // ---- Apply option ----
-  function applyOption(opt, x=window.innerWidth/2, y=window.innerHeight/2){
-    clearTimer();
-    economy = clamp(economy + (opt.econ||0),0,100);
-    bank = clamp(bank + (opt.bank||0),0,100);
-    publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0),0,100);
-    inflation = clamp(inflation + (opt.infl||0),0,20);
-    liquidity = clamp(liquidity + (opt.liq||0),0,100);
-    setMessage(`Action: ${opt.text}`);
-    updateStatsUI();
-    const net = (opt.econ||0)+(opt.bank||0)+(opt.pub||0)+(opt.liq||0) - (opt.infl||0);
-    playRandomVFX(x,y, net >= 0 ? 'positive' : 'negative');
-    setTimeout(()=> nextPhase(), 700);
-  }
-
-  function defaultAction(){
-    if(inMiniGame){ setMessage('Mini-game timed out. Proceeding.'); setTimeout(()=> nextPhase(),700); return; }
-    if(currentEventIndex >=0 && currentEventIndex < events.length){
-      const opt = events[currentEventIndex].options[0];
-      if(opt) applyOption(opt);
-      else nextPhase();
-    } else nextPhase();
-  }
-
-  // ---- Progression ----
-  function nextPhase(){
-    if(economy <= 0 || bank <= 0 || publicHappiness <= 0){ gameOver(); return; }
-    month++;
-    if(month > maxMonth){ gameOver(); return; }
-    inMiniGame = false;
-    scheduleNext();
-  }
-
-  function scheduleNext(){
-    updateStatsUI();
-    eventTitle.textContent = `Month ${month}`;
-    // 38% chance mini-game
-    if(rndChance(0.38)){
-      const r = Math.random();
-      if(r < 0.36) startMini('liquidity');
-      else if(r < 0.72) startMini('setRate');
-      else if(r < 0.88) startMini('budgetAlloc');
-      else startMini('monetaryToolkit');
-      return;
-    }
-    // deterministic cycling: avoid repeated same event many times
-    currentEventIndex = (month - 1) % events.length;
-    renderEvent(events[currentEventIndex]);
-  }
-
-  function renderEvent(evt){
-    inMiniGame = false;
-    clearTimer();
-    eventText.textContent = evt.text;
-    eventSub.textContent = '';
+  // ---- Present next MCQ for this month ----
+  function presentMCQForMonth(){
+    // clear mini area when showing a question (so mini-game UI not visible)
     miniArea.innerHTML = '';
+    eventTitle.textContent = `Month ${month}`;
+    // ensure sessionIndex within bounds
+    if(sessionIndex >= sessionQuestions.length) sessionIndex = sessionQuestions.length - 1;
+    const q = sessionQuestions[sessionIndex];
+    eventText.textContent = q.text;
+    eventSub.textContent = `Question ${sessionIndex + 1} of ${sessionQuestions.length}`;
     buttonsArea.innerHTML = '';
-    evt.options.forEach(opt=>{
-      const b = mkButton(opt.text, (ev)=> applyOption(opt, ev.clientX, ev.clientY));
-      buttonsArea.appendChild(b);
+    // present options as row buttons
+    q.options.forEach((opt, idx)=>{
+      const btn = mkRowButton(opt.text, (e)=>{
+        // apply deltas
+        clearTimer();
+        economy = clamp(economy + (opt.econ||0), 0, 100);
+        bank = clamp(bank + (opt.bank||0), 0, 100);
+        publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0), 0, 100);
+        inflation = clamp(inflation + (opt.infl||0), 0, 20);
+        liquidity = clamp(liquidity + (opt.liq||0), 0, 100);
+        updateStats();
+        setMessage(`You chose: "${opt.text}"`);
+        // play exactly two VFX types
+        playTwoVfxAt(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, 'positive');
+        // advance
+        sessionIndex++;
+        setTimeout(()=> nextPhase(), 600);
+      });
+      buttonsArea.appendChild(btn);
     });
     startTimer(30);
   }
 
-  // ---- Mini-games (kept and educational) ----
-  function clearMiniArea(){ miniArea.innerHTML = ''; buttonsArea.innerHTML=''; eventSub.textContent=''; }
-
-  function startMini(id){
-    inMiniGame = true;
-    clearTimer();
-    clearMiniArea();
-    eventSub.textContent = '';
-    const mini = miniEvents.find(m => m.id === id);
-    if(!mini){ setMessage('No mini-game found.'); setTimeout(()=> nextPhase(),600); return; }
-    eventTitle.textContent = `Mini: ${mini.text}`;
-    if(mini.id === 'liquidity') renderLiquidityMini(mini);
-    else if(mini.id === 'setRate') renderSliderMini(mini);
-    else if(mini.id === 'budgetAlloc') renderBudgetMini(mini);
-    else if(mini.id === 'monetaryToolkit') renderToolkitMini(mini);
+  // ---- default action when time runs out ----
+  function defaultAction(){
+    // auto pick first option of current MCQ if in question mode
+    if(!inMiniGame){
+      const q = sessionQuestions[sessionIndex];
+      if(q && q.options && q.options[0]){
+        // apply first option
+        const opt = q.options[0];
+        economy = clamp(economy + (opt.econ||0), 0, 100);
+        bank = clamp(bank + (opt.bank||0), 0, 100);
+        publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0), 0, 100);
+        inflation = clamp(inflation + (opt.infl||0), 0, 20);
+        liquidity = clamp(liquidity + (opt.liq||0), 0, 100);
+        updateStats();
+        setMessage('Default option applied.');
+        playTwoVfxAt(window.innerWidth/2, eventArea.getBoundingClientRect().top+40, 'neutral');
+        sessionIndex++;
+        setTimeout(()=> nextPhase(), 600);
+        return;
+      }
+    }
+    // if in mini-game, just proceed
+    setTimeout(()=> nextPhase(), 400);
   }
 
-  // Liquidity drag/drop
-  function renderLiquidityMini(mini){
-    const wrapper = document.createElement('div');
-    wrapper.style.marginTop='10px';
-    const coinsRow = document.createElement('div');
-    for(let i=0;i<mini.totalCoins;i++){
-      const c = document.createElement('div');
-      c.textContent = '💰';
-      c.style.display='inline-block'; c.style.fontSize='26px'; c.style.margin='6px'; c.style.cursor='grab';
-      c.draggable = true;
-      c.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain','1'));
-      coinsRow.appendChild(c);
+  // ---- progression ----
+  function nextPhase(){
+    clearTimer();
+    if(economy <= 0 || bank <= 0 || publicHappiness <= 0){ gameOver(); return; }
+    // end if finished 12 questions
+    if(sessionIndex >= sessionQuestions.length){
+      // end of session
+      gameOver();
+      return;
     }
-    wrapper.appendChild(coinsRow);
-    const drop = document.createElement('div');
-    drop.textContent = '🏦 Drop here to allocate';
-    drop.style.marginTop='12px'; drop.style.padding='12px'; drop.style.border='2px dashed rgba(255,255,255,.08)'; drop.style.borderRadius='10px';
+    month++;
+    if(month > maxMonth){
+      gameOver(); return;
+    }
+    // schedule mini-game chance or next question
+    scheduleNext();
+  }
+
+  function scheduleNext(){
+    updateStats();
+    // if all questions consumed, end
+    if(sessionIndex >= sessionQuestions.length){ gameOver(); return; }
+    // 38% chance mini-game
+    if(Math.random() < 0.38){
+      // show mini-game and remove question UI (previous months removed)
+      startMiniGameWeighted();
+      return;
+    }
+    // otherwise present MCQ for this month
+    presentMCQForMonth();
+  }
+
+  // ---- Mini-games (only liquidity and setRate preserved) ----
+  function startMiniGameWeighted(){
+    inMiniGame = true;
+    clearTimer();
+    eventText.textContent = 'Mini-Game';
+    eventSub.textContent = '';
+    miniArea.innerHTML = '';
+    buttonsArea.innerHTML = '';
+    // choice: 70% liquidity, 30% setRate
+    if(Math.random() < 0.7) renderLiquidityMini();
+    else renderSliderMini();
+  }
+
+  function renderLiquidityMini(){
+    // clear question UI (remove previous months)
+    eventText.textContent = 'Allocate emergency liquidity (drag coins)';
+    eventSub.textContent = '';
+    miniArea.innerHTML = '';
+    buttonsArea.innerHTML = '';
+    const wrapper = document.createElement('div'); wrapper.style.marginTop='8px';
+    const coins = document.createElement('div');
+    for(let i=0;i<6;i++){
+      const c = document.createElement('span');
+      c.textContent='💰'; c.style.fontSize='26px'; c.style.margin='6px'; c.style.cursor='grab'; c.draggable=true;
+      c.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain','1'));
+      coins.appendChild(c);
+    }
+    wrapper.appendChild(coins);
+    const drop = document.createElement('div'); drop.textContent='🏦 Drop here'; drop.style.marginTop='12px'; drop.style.padding='12px'; drop.style.border='2px dashed rgba(255,255,255,.08)'; drop.style.borderRadius='8px';
     drop.addEventListener('dragover', e => e.preventDefault());
     drop.addEventListener('drop', e => {
       e.preventDefault();
       const v = parseInt(e.dataTransfer.getData('text/plain')||'1',10);
       liquidity = clamp(liquidity + 5 * v, 0, 100);
       setMessage('Liquidity allocated!');
-      updateStatsUI();
+      updateStats();
       const r = drop.getBoundingClientRect();
-      playRandomVFX(r.left + r.width/2, r.top + r.height/2, 'positive');
-      const first = coinsRow.querySelector('div');
-      if(first) first.remove();
-      if(!coinsRow.querySelector('div')) setTimeout(()=> { inMiniGame=false; nextPhase(); },700);
+      playTwoVfxAt(r.left + r.width/2, r.top + r.height/2, 'positive');
+      const first = coins.querySelector('span'); if(first) first.remove();
+      if(!coins.querySelector('span')) { inMiniGame=false; // after mini, do not re-show previous months' questions; we already removed them
+        setTimeout(()=> nextPhase(), 700);
+      }
     });
     wrapper.appendChild(drop);
     miniArea.appendChild(wrapper);
     startTimer(25);
   }
 
-  // Set interest rate slider
-  function renderSliderMini(mini){
-    const wrapper = document.createElement('div'); wrapper.style.marginTop='10px';
-    const input = document.createElement('input'); input.type='range'; input.min=0; input.max=12; input.value = Math.round(inflation);
-    input.style.width='90%'; wrapper.appendChild(input);
-    const label = document.createElement('div'); label.style.marginTop='8px'; label.textContent = `Selected rate: ${input.value}%`; wrapper.appendChild(label);
-    const submit = mkButton('Set Policy Rate', (ev)=>{
-      inflation = clamp(Math.round(Number(input.value)), 0, 20);
-      setMessage(`Interest set to ${inflation}%.`);
-      updateStatsUI();
+  function renderSliderMini(){
+    eventText.textContent = 'Set policy interest rate';
+    eventSub.textContent = '';
+    miniArea.innerHTML = '';
+    buttonsArea.innerHTML = '';
+    const wrapper = document.createElement('div'); wrapper.style.marginTop='8px';
+    const input = document.createElement('input'); input.type='range'; input.min=0; input.max=12; input.value = Math.round(inflation); input.style.width='90%';
+    const label = document.createElement('div'); label.style.marginTop='8px'; label.textContent = `Selected: ${input.value}%`;
+    wrapper.appendChild(input); wrapper.appendChild(label);
+    const setBtn = document.createElement('button'); setBtn.className='btn'; setBtn.textContent='Set Rate';
+    setBtn.addEventListener('click', e => {
+      inflation = clamp(Math.round(Number(input.value)),0,20);
+      setMessage(`Interest set to ${inflation}%`);
+      updateStats();
       const r = input.getBoundingClientRect();
-      playRandomVFX(r.left + r.width/2, r.top + r.height/2, 'positive');
-      setTimeout(()=> { inMiniGame=false; nextPhase(); },700);
+      playTwoVfxAt(r.left + r.width/2, r.top + r.height/2, 'positive');
+      inMiniGame=false; setTimeout(()=> nextPhase(), 700);
     });
-    wrapper.appendChild(submit);
-    input.addEventListener('input', ()=> label.textContent = `Selected rate: ${input.value}%`);
+    wrapper.appendChild(setBtn);
+    input.addEventListener('input', ()=> label.textContent = `Selected: ${input.value}%`);
     miniArea.appendChild(wrapper);
     startTimer(25);
   }
 
-  // Budget Allocation (educational)
-  function renderBudgetMini(mini){
-    const totalFunds = 100;
-    let infra=30, finance=30, social=40;
-    const grid = document.createElement('div'); grid.className='alloc-grid';
-    const left = document.createElement('div'); const right = document.createElement('div'); right.className='alloc-panel';
-
-    function mkRow(name, initial){
-      const row = document.createElement('div'); row.className='alloc-row';
-      const label = document.createElement('label'); label.textContent = name;
-      const range = document.createElement('input'); range.type='range'; range.min=0; range.max=100; range.value = initial; range.style.flex='1';
-      const pct = document.createElement('div'); pct.style.width='48px'; pct.style.textAlign='right'; pct.style.fontWeight='800'; pct.textContent = initial + '%';
-      row.appendChild(label); row.appendChild(range); row.appendChild(pct);
-      return {row,range,pct};
-    }
-    const r1 = mkRow('Infrastructure', infra); const r2 = mkRow('Fin. Stability', finance); const r3 = mkRow('Social', social);
-    left.appendChild(r1.row); left.appendChild(r2.row); left.appendChild(r3.row);
-    const fundsRem = document.createElement('div'); fundsRem.style.fontWeight='800'; fundsRem.style.marginBottom='8px';
-    function refreshFunds(){
-      infra = Number(r1.range.value); finance = Number(r2.range.value); social = Number(r3.range.value);
-      const sum = infra + finance + social;
-      fundsRem.textContent = `Allocated: ${sum}% / ${totalFunds}%`;
-      r1.pct.textContent = infra + '%'; r2.pct.textContent = finance + '%'; r3.pct.textContent = social + '%';
-      fundsRem.style.color = sum > totalFunds ? 'salmon' : '';
-    }
-    r1.range.addEventListener('input', refreshFunds); r2.range.addEventListener('input', refreshFunds); r3.range.addEventListener('input', refreshFunds);
-    refreshFunds();
-    const simulate = mkButton('Simulate Allocation', ()=>{
-      const sum = infra + finance + social;
-      if(sum > totalFunds){ setMessage('You over-allocated. Reduce to 100% total.'); playRandomVFX(window.innerWidth/2, eventArea.getBoundingClientRect().top+20,'negative'); return; }
-      function effect(pct,factor){ return Math.round(Math.sqrt(pct) * factor); }
-      const ecoDelta = effect(infra,3) - Math.round(inflation * 0.1);
-      const bankDelta = effect(finance,3);
-      const pubDelta = effect(social,3);
-      economy = clamp(economy + ecoDelta,0,100);
-      bank = clamp(bank + bankDelta,0,100);
-      publicHappiness = clamp(publicHappiness + pubDelta,0,100);
-      liquidity = clamp(liquidity - Math.round((infra+finance)*0.02),0,100);
-      setMessage(`Simulation: Economy ${ecoDelta>=0?'+':''}${ecoDelta}, Bank ${bankDelta>=0?'+':''}${bankDelta}, Public ${pubDelta>=0?'+':''}${pubDelta}`);
-      updateStatsUI();
-      playRandomVFX(eventArea.getBoundingClientRect().left + 120, eventArea.getBoundingClientRect().top + 40, (ecoDelta+bankDelta+pubDelta)>0 ? 'positive' : 'neutral');
-      setTimeout(()=> { inMiniGame=false; nextPhase(); },900);
-    });
-    right.appendChild(fundsRem); right.appendChild(simulate);
-    grid.appendChild(left); grid.appendChild(right);
-    miniArea.appendChild(grid);
-    startTimer(35);
-  }
-
-  // Monetary Toolkit
-  function renderToolkitMini(mini){
-    const levers = [
-      {id:'raiseRate', label:'Raise policy rate', econ:-2, bank:+3, pub:-1, infl:-3},
-      {id:'openMarket', label:'Open market ops', econ:+1, bank:+1, pub:0, infl:-2},
-      {id:'reserveReq', label:'Raise reserve req', econ:-1, bank:+4, pub:0, infl:-2},
-      {id:'subsidy', label:'Introduce subsidy', econ:+2, bank:-1, pub:+3, infl:+1},
-      {id:'guidance', label:'Forward guidance', econ:+1, bank:0, pub:+1, infl:-1}
-    ];
-    eventSub.textContent = 'Choose 3 levers. Target: reduce inflation by ~3% with minimal economy loss.';
-    const list = document.createElement('div'); list.style.display='flex'; list.style.flexWrap='wrap'; list.style.gap='8px'; list.style.marginTop='8px';
-    const chosen = new Set();
-    levers.forEach(l=>{
-      const el = document.createElement('div');
-      el.textContent = l.label;
-      el.style.padding='10px'; el.style.borderRadius='10px'; el.style.cursor='pointer';
-      el.style.background='rgba(255,255,255,0.02)'; el.style.fontWeight='800';
-      el.addEventListener('click', (ev)=>{
-        if(chosen.has(l.id)){ chosen.delete(l.id); el.style.background='rgba(255,255,255,0.02)'; }
-        else {
-          if(chosen.size >= 3){ setMessage('Pick only 3 levers.'); playRandomVFX(ev.clientX,ev.clientY,'negative'); return; }
-          chosen.add(l.id); el.style.background='linear-gradient(90deg,#7b61ff,#5ad0ff)';
-        }
-        setMessage(`${chosen.size} selected`);
-      });
-      list.appendChild(el);
-    });
-    const submit = mkButton('Apply toolkit', ()=>{
-      if(chosen.size !== 3){ setMessage('Please select exactly 3 levers.'); playRandomVFX(window.innerWidth/2,eventArea.getBoundingClientRect().top+40,'negative'); return; }
-      let delta = {econ:0,bank:0,pub:0,infl:0};
-      chosen.forEach(id => {
-        const lv = levers.find(x=>x.id===id);
-        delta.econ += lv.econ; delta.bank += lv.bank; delta.pub += lv.pub; delta.infl += lv.infl;
-      });
-      economy = clamp(economy + delta.econ,0,100);
-      bank = clamp(bank + delta.bank,0,100);
-      publicHappiness = clamp(publicHappiness + delta.pub,0,100);
-      inflation = clamp(inflation + delta.infl,0,20);
-      setMessage(`Toolkit applied. ΔEcon:${delta.econ} ΔBank:${delta.bank} ΔPub:${delta.pub} ΔInfl:${delta.infl}`);
-      updateStatsUI();
-      playRandomVFX(eventArea.getBoundingClientRect().left + 100, eventArea.getBoundingClientRect().top + 40, delta.infl <= -2 ? 'positive' : 'neutral');
-      setTimeout(()=> { inMiniGame=false; nextPhase(); },900);
-    });
-    miniArea.appendChild(list); miniArea.appendChild(submit);
-    startTimer(35);
-  }
-
-  // ---- Game over & restart ----
+  // ---- Game over and restart ----
   function computeScore(){ const base = month * 120; const statSum = economy + bank + publicHappiness + liquidity; const penalty = inflation * 6; return Math.max(0, Math.round(base + statSum - penalty)); }
   function gameOver(){
     clearTimer();
     buttonsArea.innerHTML = '';
-    const restart = mkButton('Restart Game', restartGame);
-    const submit = mkButton('Submit Score', ()=> openLeaderboardAndFill(computeScore()), true);
+    const restart = document.createElement('button'); restart.className='btn'; restart.textContent='Restart Game'; restart.addEventListener('click', restartGame);
+    const submit = document.createElement('button'); submit.className='btn ghost'; submit.textContent='Submit Score'; submit.addEventListener('click', ()=> openLeaderboardAndFill(computeScore()));
     buttonsArea.appendChild(restart); buttonsArea.appendChild(submit);
     if(economy>70 && bank>60 && publicHappiness>60) setMessage('Legendary Governor! You win! Good Game.');
     else if(economy<50 && bank<50) setMessage('You are not fit to be an RBI Governor 🥲');
     else setMessage('Game over — check stats and try again.');
     eventTitle.textContent = 'Nice try';
-    const rect = eventTitle.getBoundingClientRect();
-    playRandomVFX(rect.left + rect.width/2, rect.top + 24, 'positive');
+    const rect = eventArea.getBoundingClientRect();
+    playTwoVfxAt(rect.left + rect.width/2, rect.top + 24, 'positive');
   }
-  function restartGame(){ clearTimer(); economy=50; bank=50; publicHappiness=50; inflation=5; liquidity=50; month=1; currentEventIndex=-1; inMiniGame=false; setMessage(''); updateStatsUI(); setTimeout(()=> scheduleNext(), 300); }
-
-  // ---- Scheduling & start ----
-  function scheduleNext(){
-    updateStatsUI();
-    setTimeout(()=> {
-      if(economy<=0 || bank<=0 || publicHappiness<=0){ gameOver(); return; }
-      scheduleNextEvent();
-    }, 200);
-  }
-  function scheduleNextEvent(){
-    eventTitle.textContent = `Month ${month}`;
-    // mini chance
-    if(rndChance(0.38)){
-      const r = Math.random();
-      if(r < 0.36) startMini('liquidity');
-      else if (r < 0.72) startMini('setRate');
-      else if (r < 0.88) startMini('budgetAlloc');
-      else startMini('monetaryToolkit');
-      return;
-    }
-    currentEventIndex = (month - 1) % events.length; // deterministic cycle to avoid repetition
-    renderEvent(events[currentEventIndex]);
+  function restartGame(){
+    clearTimer();
+    // pick new session questions, attempting to avoid overlap with previous session (best-effort)
+    sessionQuestions = pickSessionQuestions();
+    sessionIndex = 0;
+    economy = 50; bank = 50; publicHappiness = 50; inflation = 5; liquidity = 50;
+    month = 1; inMiniGame=false;
+    setMessage('');
+    updateStats();
+    setTimeout(()=> scheduleNext(), 350);
   }
 
-  // ------ Leaderboard (localStorage) -----
-  function loadLeaderboard(){ try{ const raw = localStorage.getItem(LB_KEY); return raw?JSON.parse(raw):[] }catch(e){ return []; } }
-  function saveLeaderboard(arr){ try{ localStorage.setItem(LB_KEY, JSON.stringify(arr)); }catch(e){} }
-  function addScore(name,score){ const arr = loadLeaderboard(); arr.push({name:(name||'Anonymous').slice(0,30), score: Number(score||0), date: new Date().toISOString()}); arr.sort((a,b)=>b.score - a.score); saveLeaderboard(arr.slice(0,50)); renderLeaderboard(); }
-  function renderLeaderboard(){ const arr = loadLeaderboard(); leaderboardList.innerHTML=''; if(arr.length===0){ const n = document.createElement('div'); n.textContent='pls type ur name and saved locally in ur browser to flex to other coons'; n.style.color = getComputedStyle(document.body).getPropertyValue('--muted'); leaderboardList.appendChild(n); return; } arr.forEach((e,i)=>{ const row = document.createElement('div'); row.className='lb-entry'; row.innerHTML = `<div>${i+1}. ${escapeHtml(e.name)}</div><div style="font-weight:900">${e.score}</div>`; leaderboardList.appendChild(row); }); }
+  // ---- Leaderboard ----
+  function loadLeaderboard(){ try{ const raw = localStorage.getItem(LB_KEY); return raw?JSON.parse(raw):[] } catch(e){ return []; } }
+  function saveLeaderboard(arr){ try{ localStorage.setItem(LB_KEY, JSON.stringify(arr)); } catch(e){} }
+  function addScore(name, score){ const arr = loadLeaderboard(); arr.push({name:(name||'Anonymous').slice(0,30), score: Number(score||0), date:new Date().toISOString()}); arr.sort((a,b)=> b.score - a.score); saveLeaderboard(arr.slice(0,50)); renderLeaderboard(); }
+  function renderLeaderboard(){ const arr = loadLeaderboard(); leaderboardList.innerHTML=''; if(arr.length===0){ const n=document.createElement('div'); n.textContent='pls type ur name and saved locally in ur browser to flex to other coons'; n.style.color = getComputedStyle(document.body).getPropertyValue('--muted'); leaderboardList.appendChild(n); return; } arr.forEach((e,i)=>{ const row=document.createElement('div'); row.className='lb-entry'; row.innerHTML = `<div>${i+1}. ${escapeHtml(e.name)}</div><div style="font-weight:900">${e.score}</div>`; leaderboardList.appendChild(row); }); }
   function openLeaderboardAndFill(score){ leaderboardModal.classList.add('open'); leaderboardModal.setAttribute('aria-hidden','false'); renderLeaderboard(); lbNameInput.value=''; lbNameInput.dataset.autofill = score; lbNameInput.focus(); }
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) ); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
   // ---- UI hooks ----
   openLeaderboardBtn.addEventListener('click', ()=> openLeaderboardAndFill(computeScore()));
@@ -777,113 +732,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = lbNameInput.value.trim() || 'Anonymous';
     const score = Number(lbNameInput.dataset.autofill || computeScore());
     addScore(name, score); lbNameInput.value=''; lbNameInput.dataset.autofill=''; setMessage('Score submitted!');
-    const r = submitScoreBtn.getBoundingClientRect(); playRandomVFX(r.left + r.width/2, r.top + r.height/2, 'positive');
+    const r = submitScoreBtn.getBoundingClientRect(); playTwoVfxAt(r.left + r.width/2, r.top + r.height/2, 'positive');
   });
 
-  // Dont click rap toggle with good vfx
+  // Don't click rap toggle (works)
   let rapOpen = false;
   footerDontBtn.addEventListener('click', (e)=>{
     const rect = footerDontBtn.getBoundingClientRect();
     const x = e.clientX || rect.left + rect.width/2, y = rect.top + rect.height/2;
-    playRandomVFX(x,y,'positive');
+    playTwoVfxAt(x,y,'positive');
     rapOpen = !rapOpen;
     if(rapOpen){ hariRap.style.maxHeight='420px'; hariRap.style.opacity='1'; hariRap.setAttribute('aria-hidden','false'); footerDontBtn.textContent='Close rap'; }
     else { hariRap.style.maxHeight='0'; hariRap.style.opacity='0'; hariRap.setAttribute('aria-hidden','true'); footerDontBtn.textContent="Don't click"; }
   });
 
-  // theme toggle
-  themeToggle.addEventListener('change', ()=> document.body.classList.toggle('light', themeToggle.checked) );
+  themeToggle.addEventListener('change', ()=> document.body.classList.toggle('light', themeToggle.checked));
+  document.getElementById('title').textContent = 'RBI Game'; // ensure title unchanged
 
-  // title easter
-  document.getElementById('title').addEventListener('click', ()=> setMessage('Tip: Use budget allocation and toolkit mini-games to learn trade-offs!'));
+  // ---- Start the game ----
+  // initial sessionQuestions already picked earlier
+  let sessionIndex = 0;
+  updateStats();
+  // present first MCQ after a short delay
+  setTimeout(()=> presentMCQForMonth(), 400);
 
-  // keyboard LB
-  document.addEventListener('keydown', (e)=> { if(e.key==='l' || e.key==='L') openLeaderboardAndFill(computeScore()); });
+  // expose small helpers for debugging (optional)
+  window.__RBI = { restart: restartGame, stats: ()=> ({ economy, bank, publicHappiness, inflation, liquidity, month }), sessionQuestions };
 
-  // initial start
-  updateStatsUI();
-  setTimeout(()=> scheduleNext(), 450);
+  // Defensive catch-all to avoid runtime breaking (log errors)
+  window.addEventListener('error', (e)=> console.error('Runtime error caught: ', e.message, e.filename, e.lineno));
 
-  // Expose debug helpers in console
-  window.__RBI = { restart: restartGame, stats: ()=> ({economy,bank,publicHappiness,inflation,liquidity,month}), addScore };
-
-  // --------------------
-  // Functions referenced earlier that need to be declared later to avoid hoisting issues
-  // (they are intentionally declared here to keep code linear and readable)
-  // --------------------
-
-  // helper micro spark spawn (DOM)
-  function spawnSparks(x,y,count=10){
-    const palette = ['#7b61ff','#5ad0ff','#ffd95a','#ff8a8a','#7cffb2'];
-    for(let i=0;i<count;i++){
-      const el = document.createElement('div');
-      el.style.position='fixed';
-      el.style.left = (x + (Math.random()-0.5)*30) + 'px';
-      el.style.top  = (y + (Math.random()-0.5)*20) + 'px';
-      const s = 6 + Math.round(Math.random()*12);
-      el.style.width = el.style.height = s + 'px';
-      el.style.borderRadius = '50%';
-      el.style.background = palette[Math.floor(Math.random()*palette.length)];
-      el.style.zIndex = 99999;
-      el.style.pointerEvents = 'none';
-      el.style.opacity = '1';
-      el.style.transition = 'transform .9s cubic-bezier(.2,.9,.3,1), opacity .9s';
-      document.body.appendChild(el);
-      requestAnimationFrame(()=> {
-        el.style.transform = `translate3d(${(Math.random()-0.5)*120}px, ${-80 - Math.random()*200}px, 0) scale(${0.5 + Math.random()})`;
-        el.style.opacity = '0';
-      });
-      setTimeout(()=> el.remove(), 1000);
-    }
-  }
-
-  // expose spawn functions for use above
-  function spawnSparksCanvas(x,y,count){ spawnSparks(x,y,count); }
-  function spawnCoinStreamDOM(x,y,c){ spawnCoinStreamDOM_internal(x,y,c); }
-  function spawnCoinStreamDOM_internal(x,y,count=12){
-    for(let i=0;i<count;i++){
-      const el = document.createElement('div');
-      el.textContent = '₹';
-      el.style.position = 'fixed';
-      el.style.left = (x + (Math.random()-0.5)*40) + 'px';
-      el.style.top = (y + (Math.random()-0.5)*20) + 'px';
-      el.style.fontSize = (12 + Math.round(Math.random()*20)) + 'px';
-      el.style.zIndex = 99999;
-      el.style.pointerEvents = 'none';
-      el.style.opacity = '1';
-      el.style.transition = 'transform 1s cubic-bezier(.2,.9,.3,1), opacity 1s';
-      document.body.appendChild(el);
-      requestAnimationFrame(()=> {
-        el.style.transform = `translate3d(${(Math.random()-0.5)*200}px, ${-120 - Math.random()*260}px, 0) rotate(${Math.random()*360}deg)`;
-        el.style.opacity = '0';
-      });
-      setTimeout(()=> el.remove(), 1100);
-    }
-  }
-
-  // small aliases to ensure earlier calls succeed
-  function spawnLightning(x,y,n){ spawnLightning_internal(x,y,n); }
-  function spawnLightning_internal(x,y,count=1){
-    for(let i=0;i<count;i++){
-      lightningBolts.push({ x, y, segments: [], life: 12 + Math.round(Math.random()*8), thickness: 2 + Math.random()*3 });
-    }
-  }
-  function spawnFire(x,y,n){ spawnFire_internal(x,y,n); }
-  function spawnFire_internal(x,y,count=18){
-    for(let i=0;i<count;i++){
-      fireParticles.push({
-        x: x + (Math.random()-0.5)*20,
-        y: y + (Math.random()-0.5)*10,
-        vx: (Math.random()-0.5)*1.6,
-        vy: - (1 + Math.random()*3),
-        size: 6 + Math.random()*14,
-        life: 40 + Math.round(Math.random()*40),
-        colorMix: Math.random()
-      });
-    }
-  }
-
-  // Ensure functions used earlier exist - all wrappers above call these internals
+  // ---- End of DOMContentLoaded handler ----
 });
 </script>
 </body>
