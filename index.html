@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>RBI Game</title>
+<title>RBI Game — Fixed</title>
 <style>
-  /* ---------- THEME & LAYOUT ---------- */
   :root{
     --bg:#0f1113; --card:#141516; --muted:#9aa0a6; --text:#e8eef2;
     --accent-1:#6a5acd; --accent-2:#8b5cf6; --success:#35d46a;
@@ -30,7 +29,7 @@
   .inflationBar{background:linear-gradient(90deg,var(--warning),#ffd95a);color:#111}
   .liquidityBar{background:linear-gradient(90deg,var(--info),#6fe3ff)}
 
-  .eventBox{background:#171717;padding:16px;border-radius:12px;min-height:140px;margin-bottom:12px;transition:all .24s;color:var(--text);position:relative;overflow:hidden}
+  .eventBox{background:#171717;padding:16px;border-radius:12px;min-height:120px;margin-bottom:12px;transition:all .24s;color:var(--text);position:relative;overflow:hidden}
   .eventTitle{font-weight:800;margin-bottom:8px}
   #buttonsArea{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
   button.btn{position:relative;overflow:hidden;border:0;padding:10px 14px;border-radius:10px;color:#04111a;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--btn-start),var(--btn-end));box-shadow:0 8px 26px rgba(106,90,205,0.16);transition:transform .12s,box-shadow .12s,opacity .12s}
@@ -75,13 +74,12 @@
     .side-deco{display:none}
     #leaderboardModal{right:8px;left:8px;top:auto;bottom:14px;width:auto}
   }
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
-  <!-- VFX canvas (high-performance confetti + shockwaves) -->
   <canvas id="vfxCanvas" aria-hidden="true"></canvas>
 
-  <!-- side decorations -->
   <div class="side-deco left" aria-hidden="true">
     <div class="deco-card">₹</div>
     <div class="deco-card">🏦</div>
@@ -121,7 +119,7 @@
     <div id="timer">Time Left: <span id="timeNum">30</span>s</div>
 
     <div id="eventArea" class="eventBox" aria-live="assertive">
-      <div class="eventTitle">Welcome</div>
+      <div class="eventTitle" id="eventTitle">Welcome</div>
       <div id="eventText">Make decisions each month to steer the economy.</div>
       <div id="eventSub"></div>
       <div id="miniArea"></div>
@@ -146,7 +144,6 @@ No contribution? That’s your beat!
     </div>
   </div>
 
-  <!-- Leaderboard -->
   <aside id="leaderboardModal" aria-hidden="true">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="font-weight:900">Leaderboard</div>
@@ -164,47 +161,44 @@ No contribution? That’s your beat!
   </aside>
 
 <script>
-/* =========================
-   Consolidated game code
-   - Keeps Liquidity (drag/drop) and Set Interest-rate (slider)
-   - Adds two educational, creative mini-games:
-     1) Budget Allocation (trade-offs): allocate a limited budget across sectors to meet targets.
-     2) Monetary Toolkit Puzzle: choose combination of three policy levers to hit a target inflation & growth trade-off.
-   - Improved VFX: canvas confetti + microburst DOM sparkles + shockwave
-   - VFX on ALL option clicks and mini-game events
-   - "Nice try" game over text retained
-   ========================= */
+/*
+  Fixed and cleaned full game:
+  - months display fixed (monthDisplay updated in updateStats)
+  - rap toggle works (hariRapContainer toggled with maxHeight/opacity)
+  - 3-4 distinct VFX implementations (confetti, shockwave, sparkles, coin stream)
+  - random VFX selection per action
+  - removed buggy mini-games except: liquidity (drag/drop), setRate (slider), budgetAlloc, monetaryToolkit
+  - careful initialization order and no undefined references
+  - defensive coding to avoid runtime errors
+*/
 
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
 
-  /* ---- STATE ---- */
+  /* ---------- State ---------- */
   let economy = 50, bank = 50, publicHappiness = 50, inflation = 5, liquidity = 50;
   let month = 1, maxMonth = 12;
   let timer = null, timeLeft = 30;
   let currentEventIndex = -1;
   let inMiniGame = false;
-  const LB_KEY = 'rbi_leaderboard_v1';
+  const LB_KEY = 'rbi_leaderboard_v2';
 
-  /* ---- DOM REFS ---- */
+  /* ---------- DOM Refs ---------- */
   const economyEl = document.getElementById('economy');
   const bankEl = document.getElementById('bank');
   const publicEl = document.getElementById('public');
   const inflationEl = document.getElementById('inflation');
   const liquidityEl = document.getElementById('liquidity');
+  const monthDisplay = document.getElementById('monthDisplay');
   const graphArea = document.getElementById('graphArea');
-  const eventArea = document.getElementById('eventArea');
+  const eventTitle = document.getElementById('eventTitle');
   const eventText = document.getElementById('eventText');
   const eventSub = document.getElementById('eventSub');
   const miniArea = document.getElementById('miniArea');
   const buttonsArea = document.getElementById('buttonsArea');
   const messageArea = document.getElementById('messageArea');
   const timeNum = document.getElementById('timeNum');
-  const monthDisplay = document.getElementById('monthDisplay');
 
   const themeToggle = document.getElementById('themeToggle');
-  const footerDontBtn = document.getElementById('footerDontBtn');
-  const hariRap = document.getElementById('hariRapContainer');
-
   const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');
   const leaderboardModal = document.getElementById('leaderboardModal');
   const closeLeaderboardBtn = document.getElementById('closeLeaderboardBtn');
@@ -213,167 +207,191 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const submitScoreBtn = document.getElementById('submitScoreBtn');
   const lbNameInput = document.getElementById('lbNameInput');
 
-  /* ---- VFX CANVAS SETUP ---- */
+  const footerDontBtn = document.getElementById('footerDontBtn');
+  const hariRap = document.getElementById('hariRapContainer');
+
+  /* ---------- VFX: Canvas-based confetti + shockwave + DOM sparkles/coins ---------- */
   const canvas = document.getElementById('vfxCanvas');
   const ctx = canvas.getContext('2d');
-  function resizeCanvas(){
-    const DPR = window.devicePixelRatio || 1;
+  let DPR = window.devicePixelRatio || 1;
+
+  function resizeCanvas() {
+    DPR = window.devicePixelRatio || 1;
     canvas.width = innerWidth * DPR;
     canvas.height = innerHeight * DPR;
     canvas.style.width = innerWidth + 'px';
     canvas.style.height = innerHeight + 'px';
-    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  /* Confetti particle pool */
   const confetti = [];
-  function spawnConfetti(x,y,count=28){
-    for(let i=0;i<count;i++){
+  const shocks = [];
+
+  function spawnConfetti(x, y, count = 24) {
+    for (let i = 0; i < count; i++) {
       confetti.push({
-        x, y,
-        vx: (Math.random()-0.5)*7,
-        vy: - (2 + Math.random()*6),
-        size: 6 + Math.random()*10,
-        color: ['#f6d365','#fda085','#8fd3f4','#a0c4ff','#bde0fe'][Math.floor(Math.random()*5)],
-        life: 80 + Math.round(Math.random()*60),
-        rot: Math.random()*360,
-        vr: (Math.random()-0.5)*8
+        x: x + (Math.random() - 0.5) * 30,
+        y: y + (Math.random() - 0.5) * 10,
+        vx: (Math.random() - 0.5) * 8,
+        vy: - (2 + Math.random() * 6),
+        size: 6 + Math.random() * 12,
+        color: ['#f6d365', '#fda085', '#8fd3f4', '#a0c4ff', '#bde0fe'][Math.floor(Math.random() * 5)],
+        rot: Math.random() * 360,
+        vr: (Math.random() - 0.5) * 8,
+        life: 80 + Math.round(Math.random() * 60)
       });
     }
   }
 
-  /* Shockwave */
-  const shockwaves = [];
-  function spawnShock(x,y){
-    shockwaves.push({x,y,r:0,life:40});
+  function spawnShockwave(x, y) {
+    shocks.push({ x, y, r: 0, life: 40 });
   }
 
-  /* Micro DOM sparkles */
-  function microBurst(x,y, count=8, palette){
-    palette = palette || ['#7b61ff','#5ad0ff','#ffd95a','#ff8a8a','#7cffb2'];
-    for(let i=0;i<count;i++){
+  function spawnSparkles(x, y, count = 10, palette) {
+    palette = palette || ['#7b61ff', '#5ad0ff', '#ffd95a', '#ff8a8a', '#7cffb2'];
+    for (let i = 0; i < count; i++) {
       const el = document.createElement('div');
-      el.style.position='fixed';
-      el.style.left = (x + (Math.random()-0.5)*20) + 'px';
-      el.style.top  = (y + (Math.random()-0.5)*20) + 'px';
-      const s = 6 + Math.round(Math.random()*12);
+      el.style.position = 'fixed';
+      el.style.left = (x + (Math.random() - 0.5) * 20) + 'px';
+      el.style.top = (y + (Math.random() - 0.5) * 20) + 'px';
+      const s = 6 + Math.round(Math.random() * 12);
       el.style.width = el.style.height = s + 'px';
       el.style.borderRadius = '50%';
+      el.style.background = palette[Math.floor(Math.random() * palette.length)];
       el.style.zIndex = 99999;
       el.style.pointerEvents = 'none';
-      el.style.background = palette[Math.floor(Math.random()*palette.length)];
       el.style.opacity = '1';
-      el.style.transform = 'translate3d(0,0,0)';
       el.style.transition = 'transform .9s cubic-bezier(.2,.9,.3,1), opacity .9s';
       document.body.appendChild(el);
-      requestAnimationFrame(()=>{
-        el.style.transform = `translate3d(${(Math.random()-0.5)*120}px, ${-80 - Math.random()*200}px, 0) scale(${0.6 + Math.random()*0.8})`;
-        el.style.opacity='0';
+      requestAnimationFrame(() => {
+        el.style.transform = `translate3d(${(Math.random() - 0.5) * 120}px, ${-80 - Math.random() * 220}px, 0) scale(${0.5 + Math.random()})`;
+        el.style.opacity = '0';
       });
-      setTimeout(()=> el.remove(), 1000);
+      setTimeout(() => el.remove(), 1000);
     }
   }
 
-  /* VFX animation loop */
-  let last = performance.now();
-  function frame(ts){
-    const dt = ts - last; last = ts;
-    ctx.clearRect(0,0,innerWidth,innerHeight);
+  function spawnCoinStream(x, y, count = 12) {
+    // floating coin DOM pieces (₹) that drift and fade
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.textContent = '₹';
+      el.style.position = 'fixed';
+      el.style.left = (x + (Math.random() - 0.5) * 40) + 'px';
+      el.style.top = (y + (Math.random() - 0.5) * 20) + 'px';
+      el.style.fontSize = (14 + Math.round(Math.random() * 18)) + 'px';
+      el.style.zIndex = 99999;
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '1';
+      el.style.transition = 'transform 1s cubic-bezier(.2,.9,.3,1), opacity 1s';
+      document.body.appendChild(el);
+      requestAnimationFrame(() => {
+        el.style.transform = `translate3d(${(Math.random() - 0.5) * 200}px, ${-120 - Math.random() * 260}px, 0) rotate(${Math.random() * 360}deg)`;
+        el.style.opacity = '0';
+      });
+      setTimeout(() => el.remove(), 1100);
+    }
+  }
 
-    // draw confetti
-    for(let i=confetti.length-1;i>=0;i--){
+  // animation loop for canvas items
+  let last = performance.now();
+  function vfxLoop(ts) {
+    const dt = ts - last;
+    last = ts;
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+
+    // confetti
+    for (let i = confetti.length - 1; i >= 0; i--) {
       const p = confetti[i];
       p.vy += 0.18;
       p.x += p.vx;
       p.y += p.vy;
-      p.vx *= 0.997;
-      p.vy *= 0.997;
       p.rot += p.vr;
       p.life--;
       ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rot * Math.PI/180);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
       ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
       ctx.restore();
-      if(p.y > innerHeight + 50 || p.life <= 0) confetti.splice(i,1);
+      if (p.y > innerHeight + 50 || p.life <= 0) confetti.splice(i, 1);
     }
 
     // shockwaves
-    for(let i=shockwaves.length-1;i>=0;i--){
-      const s = shockwaves[i];
+    for (let i = shocks.length - 1; i >= 0; i--) {
+      const s = shocks[i];
       s.r += 6;
-      const a = 0.6 - s.r/200;
-      if(a <= 0){ shockwaves.splice(i,1); continue; }
+      const a = 0.6 - s.r / 200;
+      if (a <= 0) { shocks.splice(i, 1); continue; }
       ctx.beginPath();
       ctx.strokeStyle = `rgba(255,255,255,${a})`;
       ctx.lineWidth = 2;
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.stroke();
     }
 
-    requestAnimationFrame(frame);
+    requestAnimationFrame(vfxLoop);
   }
-  requestAnimationFrame(frame);
+  requestAnimationFrame(vfxLoop);
 
-  /* ---- EVENTS & GAME DATA ---- */
-  const events = [
-    { text:"Inflation spikes unexpectedly!", options:[
-        {text:"Raise interest rates sharply", econ:-5, bank:+5, pub:-7, infl:-3},
-        {text:"Inject liquidity slowly", econ:+4, bank:-2, pub:+2, infl:+1, liq:+4},
-        {text:"Do nothing", econ:-5, bank:0, pub:-5, infl:+5}
-      ]
-    },
-    { text:"A major bank hides fraud reports!", options:[
-        {text:"Launch surprise audit", econ:-3, bank:+6, pub:+1},
-        {text:"Cover up quietly for govt", econ:0, bank:-2, pub:-6},
-        {text:"Fine and restructure bank", econ:-1, bank:+4, pub:-1}
-      ]
-    },
-    { text:"Public demands faster digital payments!", options:[
-        {text:"Invest in digital infrastructure", econ:+5, bank:+3, pub:+6, liq:+4},
-        {text:"Ignore demands", econ:0, bank:0, pub:-8},
-        {text:"Subsidize banks", econ:-3, bank:+4, pub:+3}
-      ]
-    },
-    { text:"Year-end liquidity planning!", options:[
-        {text:"Redistribute funds", liq:+5, pub:+3, bank:+2},
-        {text:"Invest in infra", liq:-5, bank:+2, pub:-1},
-        {text:"Adjust interest rates", infl:+1, econ:+1, bank:+1}
-      ]
+  // pick and play a random VFX set for "types" (positive/neutral/negative)
+  function playRandomVFX(x, y, type = 'neutral') {
+    // choose 1-2 VFX from set based on type
+    const sets = {
+      positive: [() => spawnConfetti(x, y, 26), () => spawnSparkles(x, y, 14), () => spawnCoinStream(x, y, 10)],
+      neutral: [() => spawnSparkles(x, y, 8), () => spawnCoinStream(x, y, 6)],
+      negative: [() => spawnSparkles(x, y, 10, ['#ff6b6b', '#ff9b9b']), () => spawnConfetti(x, y, 10), () => spawnShockwave(x, y)]
+    };
+    const pool = sets[type] || sets.neutral;
+    const pickCount = 1 + Math.floor(Math.random() * Math.min(2, pool.length));
+    for (let i = 0; i < pickCount; i++) {
+      const fn = pool[Math.floor(Math.random() * pool.length)];
+      try { fn(); } catch (e) { /* defensive */ }
     }
-  ];
-
-  /* --- Mini-games: only keep liquidity (dragDrop), set interest (slider)
-        and add two educational creative ones:
-        1) Budget Allocation (trade-offs): allocate % of a limited budget across sectors to meet target outcomes
-        2) Monetary Toolkit (combo puzzle): pick three policy levers to reach target inflation w/ growth trade-off
-  */
-  const miniEvents = [
-    { id:'liquidity', type:'dragDrop', text:'Allocate emergency liquidity (drag coins into bank)', totalCoins:6 },
-    { id:'setRate', type:'slider', text:'Set interest rate (policy rate)'},
-    { id:'budgetAlloc', type:'budget', text:'Budget Allocation — distribute a limited fund across 3 priorities to meet goals.'},
-    { id:'monetaryToolkit', type:'toolkit', text:'Monetary Toolkit — choose the right mix of policy levers to balance inflation & growth.'}
-  ];
-
-  /* ---- HELPERS ---- */
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function randomChance(p){ return Math.random() < p; }
-
-  /* ---- UI & STATE UPDATES ---- */
-  function updateStats(){
-    economyEl.textContent = economy;
-    bankEl.textContent = bank;
-    publicEl.textContent = publicHappiness;
-    inflationEl.textContent = inflation + '%';
-    liquidityEl.textContent = liquidity;
-    monthDisplay.textContent = `Month: ${clamp(month,1,maxMonth)} / ${maxMonth}`;
-    updateGraph();
+    // always add a subtle shock for emphasis sometimes
+    if (Math.random() < 0.25) spawnShockwave(x, y);
   }
-  function updateGraph(){
-    const inflW = clamp(inflation*4,0,100);
+
+  /* ---------- Game Data ---------- */
+  const events = [
+    { text: "Inflation spikes unexpectedly!", options: [
+      { text: "Raise interest rates sharply", econ: -5, bank: +5, pub: -7, infl: -3 },
+      { text: "Inject liquidity slowly", econ: +4, bank: -2, pub: +2, infl: +1, liq: +4 },
+      { text: "Do nothing", econ: -5, bank: 0, pub: -5, infl: +5 }
+    ]},
+    { text: "A major bank hides fraud reports!", options: [
+      { text: "Launch surprise audit", econ: -3, bank: +6, pub: +1 },
+      { text: "Cover up quietly for govt", econ: 0, bank: -2, pub: -6 },
+      { text: "Fine and restructure bank", econ: -1, bank: +4, pub: -1 }
+    ]},
+    { text: "Public demands faster digital payments!", options: [
+      { text: "Invest in digital infrastructure", econ: +5, bank: +3, pub: +6, liq: +4 },
+      { text: "Ignore demands", econ: 0, bank: 0, pub: -8 },
+      { text: "Subsidize banks", econ: -3, bank: +4, pub: +3 }
+    ]},
+    { text: "Year-end liquidity planning!", options: [
+      { text: "Redistribute funds", liq: +5, pub: +3, bank: +2 },
+      { text: "Invest in infra", liq: -5, bank: +2, pub: -1 },
+      { text: "Adjust rates", infl: +1, econ: +1, bank: +1 }
+    ]}
+  ];
+
+  const miniEvents = [
+    { id: 'liquidity', type: 'dragDrop', text: 'Allocate emergency liquidity (drag coins into bank)', totalCoins: 6 },
+    { id: 'setRate', type: 'slider', text: 'Set interest rate (policy rate)' },
+    { id: 'budgetAlloc', type: 'budget', text: 'Budget Allocation — distribute fund across priorities.' },
+    { id: 'monetaryToolkit', type: 'toolkit', text: 'Monetary Toolkit — pick policy levers to reach targets.' }
+  ];
+
+  /* ---------- Helpers ---------- */
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function rndChance(p) { return Math.random() < p; }
+
+  /* ---------- UI update ---------- */
+  function updateGraph() {
+    const inflW = clamp(inflation * 4, 0, 100);
     graphArea.innerHTML = `
       <div class="graphBar economyBar" style="width:${economy}%">Economy: ${economy}</div>
       <div class="graphBar bankBar" style="width:${bank}%">Bank Health: ${bank}</div>
@@ -383,530 +401,490 @@ document.addEventListener('DOMContentLoaded', ()=>{
     `;
   }
 
-  /* ---- TIMER ---- */
-  function startTimer(seconds=30){
+  function updateStats() {
+    economyEl.textContent = economy;
+    bankEl.textContent = bank;
+    publicEl.textContent = publicHappiness;
+    inflationEl.textContent = inflation + '%';
+    liquidityEl.textContent = liquidity;
+    monthDisplay.textContent = `Month: ${clamp(month, 1, maxMonth)} / ${maxMonth}`;
+    updateGraph();
+  }
+
+  /* ---------- Timer ---------- */
+  function startTimer(seconds = 30) {
     clearTimer();
     timeLeft = seconds;
     timeNum.textContent = timeLeft;
-    timer = setInterval(()=>{
+    timer = setInterval(() => {
       timeLeft--;
       timeNum.textContent = timeLeft;
-      if(timeLeft <= 0){
+      if (timeLeft <= 0) {
         clearTimer();
         setMessage("Time's up — default action applied.");
         defaultAction();
       }
-    },1000);
+    }, 1000);
   }
-  function clearTimer(){ if(timer){ clearInterval(timer); timer=null; } }
+  function clearTimer() { if (timer) { clearInterval(timer); timer = null; } }
 
-  /* ---- VFX WRAPPERS ---- */
-  function triggerVFXAt(x,y, kind='neutral'){
-    // micro DOM spark + confetti/shockwave depending on kind
-    if(kind === 'positive'){
-      microBurst(x,y,18,['#7b61ff','#5ad0ff','#7cffb2','#ffd95a']);
-      spawnConfetti(x,y,28);
-      spawnShock(x,y);
-    } else if(kind === 'negative'){
-      microBurst(x,y,12,['#ff6b6b','#ff9b9b']);
-      spawnConfetti(x,y,10);
-      spawnShock(x,y);
-    } else {
-      microBurst(x,y,10);
-    }
-  }
-
-  /* microBurst DOM implementation */
-  function microBurst(x,y,count,palette){
-    palette = palette || ['#7b61ff','#5ad0ff','#ffd95a','#ff8a8a','#7cffb2'];
-    for(let i=0;i<count;i++){
-      const el = document.createElement('div');
-      el.style.position='fixed'; el.style.left=(x + (Math.random()-0.5)*20) + 'px'; el.style.top=(y + (Math.random()-0.5)*20) + 'px';
-      const s = 6 + Math.round(Math.random()*12);
-      el.style.width = el.style.height = s + 'px';
-      el.style.borderRadius='50%';
-      el.style.background = palette[Math.floor(Math.random()*palette.length)];
-      el.style.zIndex = 99999; el.style.pointerEvents='none'; el.style.opacity='1';
-      el.style.transition = 'transform .8s cubic-bezier(.2,.9,.3,1), opacity .8s';
-      document.body.appendChild(el);
-      requestAnimationFrame(()=> {
-        el.style.transform = `translate3d(${(Math.random()-0.5)*120}px, ${-80 - Math.random()*200}px, 0) scale(${0.5 + Math.random()})`;
-        el.style.opacity = '0';
-      });
-      setTimeout(()=> el.remove(), 900);
-    }
+  /* ---------- Button helper (ripple + safe callback) ---------- */
+  function mkButton(text, handler, ghost = false) {
+    const b = document.createElement('button');
+    b.className = 'btn' + (ghost ? ' ghost' : '');
+    b.textContent = text;
+    b.addEventListener('click', (ev) => {
+      // ripple element
+      const rect = b.getBoundingClientRect();
+      const r = document.createElement('span');
+      r.style.cssText = `position:absolute;border-radius:50%;background:rgba(255,255,255,.45);width:120px;height:120px;left:${ev.clientX - rect.left - 60}px;top:${ev.clientY - rect.top - 60}px;pointer-events:none;transform:scale(0);opacity:.9;transition:transform .6s, opacity .6s;`;
+      b.appendChild(r);
+      requestAnimationFrame(() => r.style.transform = 'scale(1)');
+      setTimeout(() => r.remove(), 620);
+      // micro VFX
+      playRandomVFX(ev.clientX, ev.clientY, 'neutral');
+      // call handler safely
+      try { setTimeout(() => handler(ev), 40); } catch (e) { console.error(e); }
+    });
+    return b;
   }
 
-  /* ---- APPLY OPTION ---- */
-  function applyOption(opt, x=window.innerWidth/2, y=window.innerHeight/2){
+  function setMessage(txt) { messageArea.textContent = txt || ''; }
+
+  /* ---------- Apply action ---------- */
+  function applyOption(opt, x = window.innerWidth / 2, y = window.innerHeight / 2) {
     clearTimer();
-    economy = clamp(economy + (opt.econ||0), 0, 100);
-    bank = clamp(bank + (opt.bank||0), 0, 100);
-    publicHappiness = clamp(publicHappiness + (opt.pub||opt.public||0), 0, 100);
-    inflation = clamp(inflation + (opt.infl||0), 0, 20);
-    liquidity = clamp(liquidity + (opt.liq||0), 0, 100);
+    economy = clamp(economy + (opt.econ || 0), 0, 100);
+    bank = clamp(bank + (opt.bank || 0), 0, 100);
+    publicHappiness = clamp(publicHappiness + (opt.pub || opt.public || 0), 0, 100);
+    inflation = clamp(inflation + (opt.infl || 0), 0, 20);
+    liquidity = clamp(liquidity + (opt.liq || 0), 0, 100);
     setMessage(`Action: ${opt.text}`);
     updateStats();
-    // VFX positive if net positive
-    const net = (opt.econ||0)+(opt.bank||0)+(opt.pub||0)+(opt.liq||0)-(opt.infl||0);
-    triggerVFXAt(x,y, net >= 0 ? 'positive':'negative');
-    setTimeout(()=> nextPhase(), 700);
+    const net = (opt.econ || 0) + (opt.bank || 0) + (opt.pub || 0) + (opt.liq || 0) - (opt.infl || 0);
+    playRandomVFX(x, y, net >= 0 ? 'positive' : 'negative');
+    setTimeout(() => nextPhase(), 700);
   }
 
-  function defaultAction(){
-    // apply first option of current event if present
-    if(inMiniGame){ setMessage('Mini-game timed out. Proceeding.'); setTimeout(()=> nextPhase(), 700); return; }
-    if(currentEventIndex >=0 && currentEventIndex < events.length){
+  function defaultAction() {
+    if (inMiniGame) { setMessage('Mini-game timed out. Proceeding.'); setTimeout(() => nextPhase(), 700); return; }
+    if (currentEventIndex >= 0 && currentEventIndex < events.length) {
       const opt = events[currentEventIndex].options[0];
-      if(opt) applyOption(opt);
+      if (opt) applyOption(opt);
       else nextPhase();
     } else nextPhase();
   }
 
-  /* ---- GAME PROGRESSION ---- */
-  function nextPhase(){
-    if(economy<=0 || bank<=0 || publicHappiness<=0){
-      gameOver(); return;
-    }
+  /* ---------- Progression ---------- */
+  function nextPhase() {
+    if (economy <= 0 || bank <= 0 || publicHappiness <= 0) { gameOver(); return; }
     month++;
-    if(month>maxMonth){
-      gameOver(); return;
-    }
+    if (month > maxMonth) { gameOver(); return; }
     inMiniGame = false;
-    scheduleNextEvent();
+    scheduleNext();
   }
 
-  function scheduleNextEvent(){
-    // 38% chance to trigger a mini-game (liquidity, setRate, or educational)
-    const willMini = randomChance(0.38);
-    if(willMini){
-      // weighted: liquidity and setRate more common, educational less frequent
+  /* ---------- Schedule next: mini-game or event ---------- */
+  function scheduleNext() {
+    buttonsArea.innerHTML = '';
+    miniArea.innerHTML = '';
+    eventSub.textContent = '';
+    eventTitle.textContent = `Month ${month}`;
+    // 38% chance to trigger a mini-game
+    if (rndChance(0.38)) {
+      // weighted selection: liquidity and setRate more frequent
       const r = Math.random();
-      if(r < 0.36) startMini('liquidity');
-      else if(r < 0.7) startMini('setRate');
-      else if(r < 0.85) startMini('budgetAlloc');
+      if (r < 0.36) startMini('liquidity');
+      else if (r < 0.72) startMini('setRate');
+      else if (r < 0.88) startMini('budgetAlloc');
       else startMini('monetaryToolkit');
       return;
     }
-    // Regular monthly event
-    currentEventIndex = clamp(month-1, 0, events.length-1);
+    currentEventIndex = clamp(month - 1, 0, events.length - 1);
     const evt = events[currentEventIndex];
     renderEvent(evt);
   }
 
-  /* ---- RENDER EVENT ---- */
-  function renderEvent(evt){
+  /* ---------- Render monthly event ---------- */
+  function renderEvent(evt) {
     inMiniGame = false;
-    clearMiniArea();
+    clearTimer();
+    eventTitle.textContent = `Month ${month}`;
     eventText.textContent = evt.text;
     eventSub.textContent = '';
+    miniArea.innerHTML = '';
     buttonsArea.innerHTML = '';
-    evt.options.forEach(opt=>{
-      const b = mkButton(opt.text, (e)=> { applyOption(opt, e.clientX, e.clientY); });
+    evt.options.forEach(opt => {
+      const b = mkButton(opt.text, (ev) => applyOption(opt, ev.clientX, ev.clientY));
       buttonsArea.appendChild(b);
     });
     startTimer(30);
   }
 
-  /* ---- BUTTON CREATION w/ ripple and VFX hook ---- */
-  function mkButton(text, handler, ghost=false){
-    const b = document.createElement('button');
-    b.className = 'btn' + (ghost ? ' ghost' : '');
-    b.textContent = text;
-    b.addEventListener('click', (ev)=>{
-      // ripple
-      const rect = b.getBoundingClientRect();
-      const r = document.createElement('span');
-      r.style.cssText = `position:absolute;border-radius:50%;background:rgba(255,255,255,0.45);width:120px;height:120px;left:${ev.clientX-rect.left-60}px;top:${ev.clientY-rect.top-60}px;pointer-events:none;transform:scale(0);opacity:0.9;transition:transform .6s, opacity .6s`;
-      r.style.transform='scale(1)';
-      b.appendChild(r);
-      setTimeout(()=> r.remove(),620);
-      // micro VFX
-      microBurst(ev.clientX, ev.clientY, 10);
-      // call handler
-      setTimeout(()=> handler(ev), 40);
-    });
-    return b;
-  }
+  /* ---------- Mini-games ---------- */
+  function clearMiniArea() { miniArea.innerHTML = ''; buttonsArea.innerHTML = ''; eventSub.textContent = ''; }
 
-  /* ---- MINI-GAMES ---- */
-  function clearMiniArea(){ miniArea.innerHTML = ''; buttonsArea.innerHTML=''; eventSub.textContent=''; }
-
-  function startMini(id){
+  function startMini(id) {
     inMiniGame = true;
     clearTimer();
     clearMiniArea();
-    // set short descriptive header
-    const mini = miniEvents.find(m=>m.id===id || m.type===id || m.id===id);
-    if(!mini){ setMessage('No mini-game found.'); nextPhase(); return; }
-
-    eventText.textContent = mini.text;
-    buttonsArea.innerHTML = '';
-    // dispatch by type
-    if(mini.id === 'liquidity'){
-      renderLiquidityMini(mini);
-    } else if(mini.id === 'setRate'){
-      renderSliderMini(mini);
-    } else if(mini.id === 'budgetAlloc'){
-      renderBudgetMini(mini);
-    } else if(mini.id === 'monetaryToolkit'){
-      renderToolkitMini(mini);
-    }
+    const mini = miniEvents.find(m => m.id === id);
+    if (!mini) { setMessage('No mini-game found.'); setTimeout(() => nextPhase(), 600); return; }
+    eventTitle.textContent = `Mini: ${mini.text}`;
+    if (mini.id === 'liquidity') renderLiquidityMini(mini);
+    else if (mini.id === 'setRate') renderSliderMini(mini);
+    else if (mini.id === 'budgetAlloc') renderBudgetMini(mini);
+    else if (mini.id === 'monetaryToolkit') renderToolkitMini(mini);
   }
 
-  /* ---- LIQUIDITY: drag/drop coins ---- */
-  function renderLiquidityMini(mini){
-    miniArea.innerHTML = '';
+  // Liquidity drag/drop
+  function renderLiquidityMini(mini) {
     const wrapper = document.createElement('div');
-    wrapper.style.marginTop='10px';
-    // coins
-    const coins = document.createElement('div');
-    for(let i=0;i<mini.totalCoins;i++){
+    wrapper.style.marginTop = '10px';
+    const coinsRow = document.createElement('div');
+    for (let i = 0; i < mini.totalCoins; i++) {
       const c = document.createElement('div');
       c.textContent = '💰';
-      c.style.display='inline-block';
-      c.style.fontSize='26px';
-      c.style.margin='6px';
-      c.style.cursor='grab';
+      c.style.display = 'inline-block';
+      c.style.fontSize = '26px';
+      c.style.margin = '6px';
+      c.style.cursor = 'grab';
       c.draggable = true;
-      c.addEventListener('dragstart',(e)=> e.dataTransfer.setData('text/plain','1'));
-      coins.appendChild(c);
+      c.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', '1'));
+      coinsRow.appendChild(c);
     }
-    wrapper.appendChild(coins);
-    // drop area
+    wrapper.appendChild(coinsRow);
+
     const drop = document.createElement('div');
     drop.textContent = '🏦 Drop here to allocate';
-    drop.style.marginTop='12px'; drop.style.padding='12px'; drop.style.border='2px dashed rgba(255,255,255,.08)';
-    drop.style.borderRadius='10px';
-    drop.addEventListener('dragover',(e)=> e.preventDefault());
-    drop.addEventListener('drop',(e)=>{
+    drop.style.marginTop = '12px';
+    drop.style.padding = '12px';
+    drop.style.border = '2px dashed rgba(255,255,255,.08)';
+    drop.style.borderRadius = '10px';
+    drop.addEventListener('dragover', (e) => e.preventDefault());
+    drop.addEventListener('drop', (e) => {
       e.preventDefault();
-      const v = parseInt(e.dataTransfer.getData('text/plain')||'1',10);
+      const v = parseInt(e.dataTransfer.getData('text/plain') || '1', 10);
       liquidity = clamp(liquidity + 5 * v, 0, 100);
       setMessage('Liquidity allocated!');
       updateStats();
-      // VFX
       const r = drop.getBoundingClientRect();
-      triggerVFXAt(r.left + r.width/2, r.top + r.height/2, 'positive');
-      // remove one coin visually
-      const first = coins.querySelector('div');
-      if(first) first.remove();
-      // if none left, finish mini
-      if(!coins.querySelector('div')) { setTimeout(()=> { inMiniGame=false; nextPhase(); }, 700); }
+      playRandomVFX(r.left + r.width / 2, r.top + r.height / 2, 'positive');
+      const first = coinsRow.querySelector('div');
+      if (first) first.remove();
+      if (!coinsRow.querySelector('div')) { setTimeout(() => { inMiniGame = false; nextPhase(); }, 700); }
     });
+
     wrapper.appendChild(drop);
     miniArea.appendChild(wrapper);
     startTimer(25);
   }
 
-  /* ---- SET RATE: slider ---- */
-  function renderSliderMini(mini){
-    miniArea.innerHTML = '';
+  // Set interest rate slider
+  function renderSliderMini(mini) {
     const wrapper = document.createElement('div');
-    wrapper.style.marginTop='10px';
+    wrapper.style.marginTop = '10px';
     const input = document.createElement('input');
-    input.type='range'; input.min = 0; input.max=12; input.value = Math.round(inflation);
-    input.style.width='90%';
+    input.type = 'range'; input.min = 0; input.max = 12; input.value = Math.round(inflation);
+    input.style.width = '90%';
     wrapper.appendChild(input);
-    const label = document.createElement('div'); label.style.marginTop='8px'; label.textContent = `Selected rate: ${input.value}%`;
+    const label = document.createElement('div'); label.style.marginTop = '8px'; label.textContent = `Selected rate: ${input.value}%`;
     wrapper.appendChild(label);
-    const submit = mkButton('Set Policy Rate', (ev)=>{
+    const submit = mkButton('Set Policy Rate', (ev) => {
       inflation = clamp(Math.round(Number(input.value)), 0, 20);
       setMessage(`Interest set to ${inflation}%.`);
       updateStats();
-      const rect = input.getBoundingClientRect();
-      triggerVFXAt(rect.left + rect.width/2, rect.top + rect.height/2, 'positive');
-      setTimeout(()=> { inMiniGame=false; nextPhase(); }, 700);
+      const r = input.getBoundingClientRect();
+      playRandomVFX(r.left + r.width / 2, r.top + r.height / 2, 'positive');
+      setTimeout(() => { inMiniGame = false; nextPhase(); }, 700);
     });
     wrapper.appendChild(submit);
-    input.addEventListener('input', ()=> label.textContent = `Selected rate: ${input.value}%`);
+    input.addEventListener('input', () => label.textContent = `Selected rate: ${input.value}%`);
     miniArea.appendChild(wrapper);
     startTimer(25);
   }
 
-  /* ---- BUDGET ALLOCATION: educational trade-off mini-game ----
-       Player has a limited "special fund" (100 units) to allocate to three priorities:
-       - Infrastructure (boosts economy)
-       - Financial stability (boosts bank health)
-       - Social programs (boosts public happiness)
-     After allocation, simulated outcome calculates how stats change; player aims to meet target vector.
-     This is educational: shows trade-offs and diminishing returns.
-  */
-  function renderBudgetMini(mini){
-    miniArea.innerHTML = '';
+  // Budget Allocation educational mini-game
+  function renderBudgetMini(mini) {
     const totalFunds = 100;
     let infra = 30, finance = 30, social = 40;
-    // UI
-    const grid = document.createElement('div'); grid.className='alloc-grid';
-    const left = document.createElement('div');
-    const right = document.createElement('div'); right.className='alloc-panel';
-    function mkRow(name, varName, initial){
-      const row = document.createElement('div'); row.className='alloc-row';
-      const label = document.createElement('label'); label.textContent = name;
-      const range = document.createElement('input'); range.type='range'; range.min=0; range.max=100; range.value = initial;
-      range.style.flex='1';
-      const pct = document.createElement('div'); pct.className='alloc-percent'; pct.textContent = initial + '%';
-      row.appendChild(label); row.appendChild(range); row.appendChild(pct);
-      return {row, range, pct};
-    }
-    const r1 = mkRow('Infrastructure','infra', infra);
-    const r2 = mkRow('Fin. Stability','finance', finance);
-    const r3 = mkRow('Social','social', social);
 
+    const grid = document.createElement('div'); grid.className = 'alloc-grid';
+    const left = document.createElement('div');
+    const right = document.createElement('div'); right.className = 'alloc-panel';
+
+    function mkRow(name, initial) {
+      const row = document.createElement('div'); row.className = 'alloc-row';
+      const label = document.createElement('label'); label.textContent = name;
+      const range = document.createElement('input'); range.type = 'range'; range.min = 0; range.max = 100; range.value = initial;
+      range.style.flex = '1';
+      const pct = document.createElement('div'); pct.style.width = '48px'; pct.style.textAlign = 'right'; pct.style.fontWeight = '800'; pct.textContent = initial + '%';
+      row.appendChild(label); row.appendChild(range); row.appendChild(pct);
+      return { row, range, pct };
+    }
+
+    const r1 = mkRow('Infrastructure', infra);
+    const r2 = mkRow('Fin. Stability', finance);
+    const r3 = mkRow('Social', social);
     left.appendChild(r1.row); left.appendChild(r2.row); left.appendChild(r3.row);
 
-    // Fund counter and hints
-    const fundsRem = document.createElement('div'); fundsRem.style.fontWeight='800'; fundsRem.style.marginBottom='8px';
-    function refreshFunds(){
+    const fundsRem = document.createElement('div'); fundsRem.style.fontWeight = '800'; fundsRem.style.marginBottom = '8px';
+    function refreshFunds() {
       infra = Number(r1.range.value); finance = Number(r2.range.value); social = Number(r3.range.value);
       const sum = infra + finance + social;
       fundsRem.textContent = `Allocated: ${sum}% / ${totalFunds}%`;
       r1.pct.textContent = infra + '%'; r2.pct.textContent = finance + '%'; r3.pct.textContent = social + '%';
-      if(sum > totalFunds) fundsRem.style.color = 'salmon'; else fundsRem.style.color = '';
+      fundsRem.style.color = sum > totalFunds ? 'salmon' : '';
     }
     r1.range.addEventListener('input', refreshFunds);
     r2.range.addEventListener('input', refreshFunds);
     r3.range.addEventListener('input', refreshFunds);
     refreshFunds();
 
-    // Simulation & submit
-    const simulate = mkButton('Simulate Allocation', ()=>{
+    const simulate = mkButton('Simulate Allocation', () => {
       const sum = infra + finance + social;
-      if(sum > totalFunds){
+      if (sum > totalFunds) {
         setMessage('You over-allocated. Reduce to 100% total.');
-        triggerVFXAt(window.innerWidth/2, eventArea.getBoundingClientRect().top+40,'negative');
+        playRandomVFX(window.innerWidth/2, eventArea.getBoundingClientRect().top+20, 'negative');
         return;
       }
-      // Diminishing returns function:
-      function effect(pct, factor){
-        // returns delta proportional to sqrt of pct times factor
-        return Math.round(Math.sqrt(pct) * factor);
-      }
-      const ecoDelta = effect(infra, 3) - Math.round(inflation*0.1);
+      function effect(pct, factor) { return Math.round(Math.sqrt(pct) * factor); }
+      const ecoDelta = effect(infra, 3) - Math.round(inflation * 0.1);
       const bankDelta = effect(finance, 3);
       const pubDelta = effect(social, 3);
-
-      // Apply with clamping
       economy = clamp(economy + ecoDelta, 0, 100);
       bank = clamp(bank + bankDelta, 0, 100);
       publicHappiness = clamp(publicHappiness + pubDelta, 0, 100);
-      // small liquidity cost for some allocations
-      liquidity = clamp(liquidity - Math.round((infra+finance)*0.02), 0, 100);
-
-      setMessage(`Allocation simulated. Economy ${ecoDelta>=0?'+':''}${ecoDelta}, Bank ${bankDelta>=0?'+':''}${bankDelta}, Public ${pubDelta>=0?'+':''}${pubDelta}.`);
+      liquidity = clamp(liquidity - Math.round((infra + finance) * 0.02), 0, 100);
+      setMessage(`Simulation: Economy ${ecoDelta>=0?'+':''}${ecoDelta}, Bank ${bankDelta>=0?'+':''}${bankDelta}, Public ${pubDelta>=0?'+':''}${pubDelta}`);
       updateStats();
-      // VFX: positive burst if net positive
-      const net = ecoDelta + bankDelta + pubDelta;
-      triggerVFXAt(eventArea.getBoundingClientRect().left + 120, eventArea.getBoundingClientRect().top+40, net>0?'positive':'neutral');
-      // finish
-      setTimeout(()=> { inMiniGame=false; nextPhase(); }, 900);
+      playRandomVFX(eventArea.getBoundingClientRect().left + 100, eventArea.getBoundingClientRect().top + 40, (ecoDelta+bankDelta+pubDelta)>0 ? 'positive' : 'neutral');
+      setTimeout(()=> { inMiniGame = false; nextPhase(); }, 900);
     });
-    right.appendChild(fundsRem);
-    right.appendChild(simulate);
 
+    right.appendChild(fundsRem); right.appendChild(simulate);
     grid.appendChild(left); grid.appendChild(right);
     miniArea.appendChild(grid);
     startTimer(35);
   }
 
-  /* ---- MONETARY TOOLKIT: combination puzzle educational game ----
-       Player picks three levers (out of options) to hit a target pair:
-       Target: reduce inflation moderately while keeping economy stable.
-       Each lever impacts metrics differently; player must pick an optimal combo.
-  */
-  function renderToolkitMini(mini){
-    miniArea.innerHTML = '';
+  // Monetary Toolkit combo puzzle
+  function renderToolkitMini(mini) {
     const levers = [
-      {id:'raiseRate', label:'Raise policy rate', econ:-2, bank:+3, pub:-1, infl:-3},
-      {id:'openMarket', label:'Open market ops (sterilize)', econ:+1, bank:+1, pub:0, infl:-2},
-      {id:'reserveReq', label:'Raise reserve requirements', econ:-1, bank:+4, pub:0, infl:-2},
-      {id:'subsidy', label:'Introduce subsidy', econ:+2, bank:-1, pub:+3, infl:+1},
-      {id:'communication', label:'Forward guidance', econ:+1, bank:0, pub:+1, infl:-1}
+      { id: 'raiseRate', label: 'Raise policy rate', econ: -2, bank: +3, pub: -1, infl: -3 },
+      { id: 'openMarket', label: 'Open market ops', econ: +1, bank: +1, pub: 0, infl: -2 },
+      { id: 'reserveReq', label: 'Raise reserve req', econ: -1, bank: +4, pub: 0, infl: -2 },
+      { id: 'subsidy', label: 'Introduce subsidy', econ: +2, bank: -1, pub: +3, infl: +1 },
+      { id: 'guidance', label: 'Forward guidance', econ: +1, bank: 0, pub: +1, infl: -1 }
     ];
-    eventSub.textContent = 'Choose 3 levers (trade-offs). Target: lower inflation by ~3% with minimal economy loss.';
-    const list = document.createElement('div'); list.style.display='flex'; list.style.flexWrap='wrap'; list.style.gap='8px'; list.style.marginTop='8px';
+
+    eventSub.textContent = 'Choose 3 levers. Target: reduce inflation by ~3% with minimal economy loss.';
+    const list = document.createElement('div'); list.style.display = 'flex'; list.style.flexWrap = 'wrap'; list.style.gap = '8px'; list.style.marginTop = '8px';
     const chosen = new Set();
-    levers.forEach(l=>{
+    levers.forEach(l => {
       const el = document.createElement('div');
       el.textContent = l.label;
-      el.style.padding='10px'; el.style.borderRadius='10px'; el.style.cursor='pointer';
-      el.style.background='rgba(255,255,255,0.02)'; el.style.fontWeight='800';
-      el.addEventListener('click', (ev)=>{
-        if(chosen.has(l.id)){
-          chosen.delete(l.id); el.style.background='rgba(255,255,255,0.02)';
-        } else {
-          if(chosen.size >= 3){ setMessage('Pick only 3 levers.'); triggerVFXAt(ev.clientX, ev.clientY,'negative'); return; }
-          chosen.add(l.id); el.style.background='linear-gradient(90deg,#7b61ff,#5ad0ff)';
+      el.style.padding = '10px'; el.style.borderRadius = '10px'; el.style.cursor = 'pointer';
+      el.style.background = 'rgba(255,255,255,0.02)'; el.style.fontWeight = '800';
+      el.addEventListener('click', (ev) => {
+        if (chosen.has(l.id)) { chosen.delete(l.id); el.style.background = 'rgba(255,255,255,0.02)'; }
+        else {
+          if (chosen.size >= 3) { setMessage('Pick only 3 levers.'); playRandomVFX(ev.clientX, ev.clientY, 'negative'); return; }
+          chosen.add(l.id); el.style.background = 'linear-gradient(90deg,#7b61ff,#5ad0ff)';
         }
         setMessage(`${chosen.size} selected`);
       });
       list.appendChild(el);
     });
-    const submit = mkButton('Apply toolkit', ()=>{
-      if(chosen.size !== 3){ setMessage('Please select exactly 3 levers.'); triggerVFXAt(window.innerWidth/2, eventArea.getBoundingClientRect().top+40,'negative'); return; }
-      // compute combined impact
-      let delta = {econ:0, bank:0, pub:0, infl:0};
-      chosen.forEach(id=>{
-        const lv = levers.find(x=>x.id===id);
+
+    const submit = mkButton('Apply toolkit', () => {
+      if (chosen.size !== 3) { setMessage('Please select exactly 3 levers.'); playRandomVFX(window.innerWidth/2, eventArea.getBoundingClientRect().top+40, 'negative'); return; }
+      let delta = { econ: 0, bank: 0, pub: 0, infl: 0 };
+      chosen.forEach(id => {
+        const lv = levers.find(x => x.id === id);
         delta.econ += lv.econ; delta.bank += lv.bank; delta.pub += lv.pub; delta.infl += lv.infl;
       });
-      // apply but scaled (educational: complexity)
       economy = clamp(economy + delta.econ, 0, 100);
       bank = clamp(bank + delta.bank, 0, 100);
       publicHappiness = clamp(publicHappiness + delta.pub, 0, 100);
       inflation = clamp(inflation + delta.infl, 0, 20);
       setMessage(`Toolkit applied. ΔEcon:${delta.econ} ΔBank:${delta.bank} ΔPub:${delta.pub} ΔInfl:${delta.infl}`);
       updateStats();
-      // strong VFX if good (inflation decrease >=2)
-      triggerVFXAt(eventArea.getBoundingClientRect().left + 100, eventArea.getBoundingClientRect().top + 40, delta.infl<=-2 ? 'positive':'neutral');
-      setTimeout(()=> { inMiniGame=false; nextPhase(); }, 900);
+      playRandomVFX(eventArea.getBoundingClientRect().left + 100, eventArea.getBoundingClientRect().top + 40, delta.infl <= -2 ? 'positive' : 'neutral');
+      setTimeout(() => { inMiniGame = false; nextPhase(); }, 900);
     });
-    miniArea.appendChild(list);
-    miniArea.appendChild(submit);
+
+    miniArea.appendChild(list); miniArea.appendChild(submit);
     startTimer(35);
   }
 
-  /* ---- GAME OVER ---- */
-  function computeScore(){
+  /* ---------- Game Over & Restart ---------- */
+  function computeScore() {
     const base = month * 120;
     const statSum = economy + bank + publicHappiness + liquidity;
     const penalty = inflation * 6;
     return Math.max(0, Math.round(base + statSum - penalty));
   }
-  function gameOver(){
+
+  function gameOver() {
     clearTimer();
     buttonsArea.innerHTML = '';
-    const r = mkButton('Restart Game', restartGame);
-    buttonsArea.appendChild(r);
-    const submit = mkButton('Submit Score', ()=> openLeaderboardAndFill(computeScore()), true);
-    buttonsArea.appendChild(submit);
-    if(economy>70 && bank>60 && publicHappiness>60){ setMessage('Legendary Governor! You win! Good Game.'); }
-    else if(economy<50 && bank<50){ setMessage('You are not fit to be an RBI Governor 🥲'); }
-    else { setMessage('Game over — check stats and try again.'); }
-    eventText.textContent = 'Nice try';
-    // celebratory confetti
-    const rct = eventArea.getBoundingClientRect();
-    spawnConfetti(rct.left + rct.width/2, rct.top + 30, 36);
-    spawnShock(rct.left + rct.width/2, rct.top + 30);
+    const restart = mkButton('Restart Game', restartGame);
+    const submit = mkButton('Submit Score', () => openLeaderboardAndFill(computeScore()), true);
+    buttonsArea.appendChild(restart); buttonsArea.appendChild(submit);
+
+    if (economy > 70 && bank > 60 && publicHappiness > 60) setMessage('Legendary Governor! You win! Good Game.');
+    else if (economy < 50 && bank < 50) setMessage('You are not fit to be an RBI Governor 🥲');
+    else setMessage('Game over — check stats and try again.');
+
+    eventTitle.textContent = 'Nice try';
+    // celebratory
+    const rect = eventArea.getBoundingClientRect();
+    playRandomVFX(rect.left + rect.width / 2, rect.top + 30, 'positive');
   }
 
-  function restartGame(){
+  function restartGame() {
     clearTimer();
     economy = 50; bank = 50; publicHappiness = 50; inflation = 5; liquidity = 50;
-    month = 1; currentEventIndex=-1; inMiniGame=false;
+    month = 1; currentEventIndex = -1; inMiniGame = false;
     setMessage('');
     updateStats();
-    scheduleNextEvent();
+    setTimeout(scheduleNext, 300);
   }
 
-  /* ---- SCHEDULING & START ---- */
-  function scheduleFirst(){
+  /* ---------- Initial scheduling ---------- */
+  function scheduleNext() {
     updateStats();
-    scheduleNextEvent();
+    // small delay for UX
+    setTimeout(() => {
+      // if game ended already, stop
+      if (economy <= 0 || bank <= 0 || publicHappiness <= 0) { gameOver(); return; }
+      // proceed
+      scheduleNextEvent();
+    }, 260);
   }
 
-  /* ---- MESSAGE & UTIL ---- */
-  function setMessage(txt){ messageArea.textContent = txt || ''; }
-  function spawnConfetti(x,y,n){ spawnConfetti_core(x,y,n); } // placeholder wrapper
+  function scheduleNextEvent() {
+    // prepare title
+    eventTitle.textContent = `Month ${month}`;
+    // decision to trigger mini-game or event
+    if (rndChance(0.38)) {
+      const r = Math.random();
+      if (r < 0.36) startMini('liquidity');
+      else if (r < 0.72) startMini('setRate');
+      else if (r < 0.88) startMini('budgetAlloc');
+      else startMini('monetaryToolkit');
+      return;
+    }
+    currentEventIndex = clamp(month - 1, 0, events.length - 1);
+    renderEvent(events[currentEventIndex]);
+  }
 
-  /* ---- LOCAL LEADERBOARD (simple) ---- */
-  function loadLeaderboard(){ try{ const raw = localStorage.getItem(LB_KEY); return raw?JSON.parse(raw):[] } catch(e){ return []; } }
-  function saveLeaderboard(arr){ try{ localStorage.setItem(LB_KEY, JSON.stringify(arr)); }catch(e){} }
-  function addScore(name, score){
+  /* ---------- Render event wrapper (used above) ---------- */
+  function renderEvent(evt) {
+    inMiniGame = false;
+    eventText.textContent = evt.text;
+    eventSub.textContent = '';
+    miniArea.innerHTML = '';
+    buttonsArea.innerHTML = '';
+    evt.options.forEach(opt => {
+      const btn = mkButton(opt.text, (ev) => applyOption(opt, ev.clientX, ev.clientY));
+      buttonsArea.appendChild(btn);
+    });
+    startTimer(30);
+  }
+
+  /* ---------- Leaderboard (localStorage) ---------- */
+  function loadLeaderboard() { try { const raw = localStorage.getItem(LB_KEY); return raw ? JSON.parse(raw) : []; } catch (e) { return []; } }
+  function saveLeaderboard(arr) { try { localStorage.setItem(LB_KEY, JSON.stringify(arr)); } catch (e) { } }
+  function addScore(name, score) {
     const arr = loadLeaderboard();
-    arr.push({name:name.slice(0,30)||'Anon', score: Number(score||0), date:new Date().toISOString()});
-    arr.sort((a,b)=> b.score - a.score);
-    saveLeaderboard(arr.slice(0,50));
+    arr.push({ name: (name || 'Anonymous').slice(0, 30), score: Number(score || 0), date: new Date().toISOString() });
+    arr.sort((a, b) => b.score - a.score);
+    saveLeaderboard(arr.slice(0, 50));
     renderLeaderboard();
   }
-  function renderLeaderboard(){
+  function renderLeaderboard() {
     const arr = loadLeaderboard();
     leaderboardList.innerHTML = '';
-    if(arr.length === 0){
+    if (arr.length === 0) {
       const n = document.createElement('div'); n.textContent = 'pls type ur name and saved locally in ur browser to flex to other coons'; n.style.color = getComputedStyle(document.body).getPropertyValue('--muted'); leaderboardList.appendChild(n); return;
     }
-    arr.forEach((e,i)=>{
-      const div = document.createElement('div'); div.className='lb-entry';
-      div.innerHTML = `<div>${i+1}. ${escapeHtml(e.name)}</div><div style="font-weight:900">${e.score}</div>`;
-      leaderboardList.appendChild(div);
+    arr.forEach((e, i) => {
+      const row = document.createElement('div'); row.className = 'lb-entry';
+      row.innerHTML = `<div>${i + 1}. ${escapeHtml(e.name)}</div><div style="font-weight:900">${e.score}</div>`;
+      leaderboardList.appendChild(row);
     });
   }
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-  function openLeaderboardAndFill(score){
+  function openLeaderboardAndFill(score) {
     leaderboardModal.classList.add('open');
-    leaderboardModal.setAttribute('aria-hidden','false');
+    leaderboardModal.setAttribute('aria-hidden', 'false');
     renderLeaderboard();
     lbNameInput.value = '';
     lbNameInput.dataset.autofill = score;
     lbNameInput.focus();
   }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
 
-  /* ---- Hook UI controls ---- */
-  document.getElementById('openLeaderboardBtn').addEventListener('click', ()=>{
-    leaderboardModal.classList.add('open');
-    leaderboardModal.setAttribute('aria-hidden','false');
-    renderLeaderboard();
-  });
-  closeLeaderboardBtn.addEventListener('click', ()=> { leaderboardModal.classList.remove('open'); leaderboardModal.setAttribute('aria-hidden','true'); });
-  clearLeaderboardBtn.addEventListener('click', ()=> { if(confirm('Clear leaderboard?')){ saveLeaderboard([]); renderLeaderboard(); }});
-  submitScoreBtn.addEventListener('click', ()=>{
+  /* ---------- UI Hooks ---------- */
+  openLeaderboardBtn.addEventListener('click', () => { openLeaderboardAndFill(computeScore()); });
+  closeLeaderboardBtn.addEventListener('click', () => { leaderboardModal.classList.remove('open'); leaderboardModal.setAttribute('aria-hidden', 'true'); });
+  clearLeaderboardBtn.addEventListener('click', () => { if (confirm('Clear leaderboard?')) { saveLeaderboard([]); renderLeaderboard(); } });
+  submitScoreBtn.addEventListener('click', () => {
     const name = lbNameInput.value.trim() || 'Anonymous';
     const score = Number(lbNameInput.dataset.autofill || computeScore());
     addScore(name, score);
-    lbNameInput.value=''; lbNameInput.dataset.autofill='';
+    lbNameInput.value = ''; lbNameInput.dataset.autofill = '';
     setMessage('Score submitted!');
     const r = submitScoreBtn.getBoundingClientRect();
-    triggerVFXAt(r.left + r.width/2, r.top + r.height/2, 'positive');
+    playRandomVFX(r.left + r.width / 2, r.top + r.height / 2, 'positive');
   });
 
-  /* ---- 'Don't click' VFX + rap ---- */
-  footerDontBtn.addEventListener('click', (e)=>{
-    const r = footerDontBtn.getBoundingClientRect();
-    const x = e.clientX || r.left + r.width/2, y = e.clientY || r.top + r.height/2;
-    microBurst(x,y,22,['#7b61ff','#ffd95a','#5ad0ff','#7cffb2']);
-    spawnConfetti_core(x,y,24);
-    spawnShock(x,y);
-    // toggle rap
-    const open = hariRap.style.maxHeight && hariRap.style.maxHeight !== '0px';
-    if(open){ hariRap.style.maxHeight = '0'; hariRap.style.opacity='0'; footerDontBtn.textContent="Don't click"; }
-    else { hariRap.style.maxHeight = '420px'; hariRap.style.opacity='1'; footerDontBtn.textContent='Close rap'; }
-  });
-
-  /* ---- Utility: strong confetti implementation core (rename used earlier) ---- */
-  function spawnConfetti_core(x,y,count=28){
-    for(let i=0;i<count;i++){
-      confetti.push({
-        x:x + (Math.random()-0.5)*40,
-        y:y + (Math.random()-0.5)*20,
-        vx:(Math.random()-0.5)*8,
-        vy: - (3 + Math.random()*7),
-        size: 6 + Math.random()*12,
-        color: ['#f6d365','#fda085','#8fd3f4','#a0c4ff','#bde0fe'][Math.floor(Math.random()*5)],
-        life: 90 + Math.round(Math.random()*60),
-        rot: Math.random()*360,
-        vr: (Math.random()-0.5)*8
-      });
+  // Rap toggle with proper show/hide and vfx
+  let rapOpen = false;
+  footerDontBtn.addEventListener('click', (e) => {
+    const rect = footerDontBtn.getBoundingClientRect();
+    const x = e.clientX || rect.left + rect.width / 2, y = rect.top + rect.height / 2;
+    // strong VFX
+    playRandomVFX(x, y, 'positive');
+    rapOpen = !rapOpen;
+    if (rapOpen) {
+      hariRap.style.maxHeight = '420px';
+      hariRap.style.opacity = '1';
+      hariRap.setAttribute('aria-hidden', 'false');
+      footerDontBtn.textContent = 'Close rap';
+    } else {
+      hariRap.style.maxHeight = '0';
+      hariRap.style.opacity = '0';
+      hariRap.setAttribute('aria-hidden', 'true');
+      footerDontBtn.textContent = "Don't click";
     }
-  }
-
-  /* ---- INITIALIZATION & START ---- */
-  themeToggle.addEventListener('change', ()=> document.body.classList.toggle('light', themeToggle.checked));
-  // easter egg on title click
-  document.getElementById('title').addEventListener('click', ()=>{
-    const m = messageArea.textContent || '';
-    messageArea.textContent = m ? '' : 'Tip: allocate funds wisely — trade-offs matter!';
   });
 
-  // keyboard open LB
-  document.addEventListener('keydown', (e)=> { if(e.key==='l' || e.key==='L') { openLeaderboardAndFill(computeScore()); }});
+  // theme toggle
+  themeToggle.addEventListener('change', () => document.body.classList.toggle('light', themeToggle.checked));
 
-  // start the simulation
+  // title easter
+  document.getElementById('title').addEventListener('click', () => {
+    setMessage('Tip: Try the educational mini-games — they teach trade-offs and policy effects!');
+  });
+
+  // keyboard LB
+  document.addEventListener('keydown', (e) => { if (e.key === 'l' || e.key === 'L') openLeaderboardAndFill(computeScore()); });
+
+  /* ---------- Start ---------- */
   updateStats();
-  setTimeout(scheduleFirst, 600);
+  // show initial month & schedule
+  setTimeout(scheduleNext, 500);
 
-  // expose helpers for debugging
-  window.__RBI = { restart: restartGame, addScore: addScore, stats: ()=> ({economy,bank,publicHappiness,inflation,liquidity}) };
+  /* ---------- Expose some debug helpers ---------- */
+  window.__RBI = {
+    restart: restartGame,
+    stats: () => ({ economy, bank, publicHappiness, inflation, liquidity, month }),
+    addScore
+  };
 
+  // Defensive: ensure no uncaught errors swallow animation loop (already safe)
 });
 </script>
 </body>
