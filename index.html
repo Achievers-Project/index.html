@@ -117,6 +117,190 @@ h1{font-size:18px}
 </style>
 </head>
 <body>
+  <!-- INSERT START-OVERLAY: place this immediately after the opening <body> tag -->
+<style>
+  /* Start overlay styles (minimal, self-contained) */
+  #start-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483647; /* very high to sit above any page content */
+  }
+  #start-container {
+    text-align: center;
+    color: white;
+  }
+  #start-button {
+    background: #1e90ff;
+    color: white;
+    font-size: 1.25rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  }
+  #start-button:active { transform: translateY(1px); }
+  #start-caption { margin-bottom: 1rem; font-size: 1.05rem; }
+</style>
+
+<div id="start-overlay" aria-hidden="false">
+  <div id="start-container" role="dialog" aria-label="Start game">
+    <div id="start-caption">Click to start the game</div>
+    <button id="start-button" type="button">Start Game</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Minimal, conservative interception to prevent the game's main loops/audio from running
+  // until the user clicks Start. We queue callbacks and replay them after start.
+  var blocked = true;
+
+  var orig = {
+    rAF: window.requestAnimationFrame,
+    cAF: window.cancelAnimationFrame,
+    setTimeout: window.setTimeout,
+    setInterval: window.setInterval,
+    clearTimeout: window.clearTimeout,
+    clearInterval: window.clearInterval,
+    play: HTMLMediaElement.prototype.play
+  };
+
+  var rafQueue = [];
+  var timeoutQueue = [];
+  var intervalQueue = [];
+
+  // override requestAnimationFrame
+  window.requestAnimationFrame = function (cb) {
+    if (blocked) {
+      rafQueue.push(cb);
+      // return a fake id (0 is harmless)
+      return 0;
+    }
+    return orig.rAF.call(window, cb);
+  };
+
+  // override cancelAnimationFrame (best-effort; if game stores ids, they will be 0)
+  window.cancelAnimationFrame = function (id) {
+    if (blocked) {
+      // nothing to do for queued rAFs beyond removing all matching entries (rare)
+      // keep simple: no-op
+      return;
+    }
+    if (orig.cAF) return orig.cAF.call(window, id);
+  };
+
+  // override setTimeout
+  window.setTimeout = function (cb, delay) {
+    if (blocked) {
+      timeoutQueue.push({ cb: cb, delay: delay || 0 });
+      return 0;
+    }
+    return orig.setTimeout.call(window, cb, delay);
+  };
+  window.clearTimeout = function (id) {
+    if (blocked) {
+      // no reliable id handling for queued timeouts; no-op
+      return;
+    }
+    return orig.clearTimeout.call(window, id);
+  };
+
+  // override setInterval
+  window.setInterval = function (cb, delay) {
+    if (blocked) {
+      // store as a function to start interval after unblocking
+      intervalQueue.push({ cb: cb, delay: delay || 0 });
+      return 0;
+    }
+    return orig.setInterval.call(window, cb, delay);
+  };
+  window.clearInterval = function (id) {
+    if (blocked) {
+      return;
+    }
+    return orig.clearInterval.call(window, id);
+  };
+
+  // Prevent media autoplay (play() returns resolved Promise while blocked)
+  HTMLMediaElement.prototype.play = function () {
+    if (blocked) {
+      try { return Promise.resolve(); } catch (e) { return; }
+    }
+    return orig.play.apply(this, arguments);
+  };
+
+  function flushQueues() {
+    // Restore originals first so replayed calls behave as expected.
+    window.requestAnimationFrame = orig.rAF;
+    window.cancelAnimationFrame = orig.cAF;
+    window.setTimeout = orig.setTimeout;
+    window.setInterval = orig.setInterval;
+    window.clearTimeout = orig.clearTimeout;
+    window.clearInterval = orig.clearInterval;
+    HTMLMediaElement.prototype.play = orig.play;
+
+    // Replay queued rAF callbacks once each (they won't get the timestamp argument)
+    try {
+      for (var i = 0; i < rafQueue.length; i++) {
+        orig.rAF.call(window, rafQueue[i]);
+      }
+      rafQueue = [];
+    } catch (e) { /* ignore replay errors */ }
+
+    // Replay queued timeouts using the real setTimeout
+    try {
+      for (var j = 0; j < timeoutQueue.length; j++) {
+        (function (item) {
+          orig.setTimeout.call(window, item.cb, item.delay);
+        })(timeoutQueue[j]);
+      }
+      timeoutQueue = [];
+    } catch (e) { /* ignore */ }
+
+    // Start stored intervals
+    try {
+      for (var k = 0; k < intervalQueue.length; k++) {
+        (function (it) {
+          orig.setInterval.call(window, it.cb, it.delay);
+        })(intervalQueue[k]);
+      }
+      intervalQueue = [];
+    } catch (e) { /* ignore */ }
+  }
+
+  function startHandler() {
+    if (!blocked) return;
+    blocked = false;
+    flushQueues();
+
+    // remove overlay from DOM (clean)
+    var overlay = document.getElementById('start-overlay');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  }
+
+  // Expose controlled start if any external code wants to trigger programmatically:
+  window.__startGame = startHandler;
+
+  // Attach listener to button as soon as DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.getElementById('start-button');
+      if (btn) btn.addEventListener('click', startHandler);
+    });
+  } else {
+    var btn = document.getElementById('start-button');
+    if (btn) btn.addEventListener('click', startHandler);
+  }
+
+  // Accessibility: allow Enter/Space on button via keydown handled by the browser already.
+})();
+</script>
+<!-- END INSERT START-OVERLAY -->
 <div class="image-container">
 <a href="https://potatotomato.netlify.app/" aria-label="External site">
 <img src="https://images.seeklogo.com/logo-png/16/1/rbi-logo-png_seeklogo-168562.png" alt="RBI logo" width="140">
